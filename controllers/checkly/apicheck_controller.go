@@ -19,6 +19,7 @@ package checkly
 import (
 	"context"
 
+	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -48,6 +49,22 @@ type ApiCheckReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
+
+	apiCheck := &checklyv1alpha1.ApiCheck{}
+	err := r.Get(ctx, req.NamespacedName, apiCheck)
+
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// Probably the resource has been deleted
+			log.Log.Info("Deleted")
+			return ctrl.Result{}, nil
+		}
+		// Error reading the object
+		return ctrl.Result{}, nil
+	}
+
+	// Object found, let's do something with it.
+	log.Log.Info("Object found", "endpoint", apiCheck.Spec.Endpoint)
 
 	// TODO(user): your logic here
 
