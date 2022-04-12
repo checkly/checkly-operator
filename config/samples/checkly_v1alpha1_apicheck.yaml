@@ -1,0 +1,6 @@
+apiVersion: checkly.imgarena.com/v1alpha1
+kind: ApiCheck
+metadata:
+  name: apicheck-sample
+spec:
+  # TODO(user): Add fields here

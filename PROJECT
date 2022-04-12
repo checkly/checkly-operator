@@ -1,0 +1,26 @@
+domain: imgarena.com
+layout:
+- go.kubebuilder.io/v3
+multigroup: true
+plugins:
+  manifests.sdk.operatorframework.io/v2: {}
+  scorecard.sdk.operatorframework.io/v2: {}
+projectName: checkly-operator
+repo: github.com/imgarena/checkly-operator
+resources:
+- controller: true
+  domain: k8s.io
+  group: networking
+  kind: Ingress
+  path: k8s.io/api/networking/v1
+  version: v1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: imgarena.com
+  group: checkly
+  kind: ApiCheck
+  path: github.com/imgarena/checkly-operator/apis/checkly/v1alpha1
+  version: v1alpha1
+version: "3"

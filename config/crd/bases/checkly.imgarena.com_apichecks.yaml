@@ -1,0 +1,81 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.8.0
+  creationTimestamp: null
+  name: apichecks.checkly.imgarena.com
+spec:
+  group: checkly.imgarena.com
+  names:
+    kind: ApiCheck
+    listKind: ApiCheckList
+    plural: apichecks
+    singular: apicheck
+  scope: Namespaced
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ApiCheck is the Schema for the apichecks API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ApiCheckSpec defines the desired state of ApiCheck
+            properties:
+              endpoint:
+                description: Endpoint determines which URL to monitor, ex. https://foo.bar/baz
+                type: string
+              frequency:
+                description: Frequency is used to determine the frequency of the checks
+                  in minutes, default 5
+                format: int32
+                type: integer
+              locations:
+                description: Locations determines the locations where the checks are
+                  run from, see https://www.checklyhq.com/docs/monitoring/global-locations/
+                  for a list, use AWS Region codes, ex. eu-west-1 for Ireland
+                items:
+                  type: string
+                type: array
+              muted:
+                description: Muted determines if the created alert is muted or not,
+                  default false
+                type: boolean
+              success:
+                description: Success determines the returned success code, ex. 200
+                type: string
+              team:
+                description: Team determines who owns this API Check
+                type: string
+            required:
+            - endpoint
+            - success
+            - team
+            type: object
+          status:
+            description: ApiCheckStatus defines the observed state of ApiCheck
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []

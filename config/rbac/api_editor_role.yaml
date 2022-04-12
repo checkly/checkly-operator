@@ -1,0 +1,24 @@
+# permissions for end users to edit apis.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: api-editor-role
+rules:
+- apiGroups:
+  - check.imgarena.com
+  resources:
+  - apis
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - check.imgarena.com
+  resources:
+  - apis/status
+  verbs:
+  - get

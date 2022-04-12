@@ -1,0 +1,24 @@
+# permissions for end users to edit apichecks.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: apicheck-editor-role
+rules:
+- apiGroups:
+  - checkly.imgarena.com
+  resources:
+  - apichecks
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - checkly.imgarena.com
+  resources:
+  - apichecks/status
+  verbs:
+  - get
