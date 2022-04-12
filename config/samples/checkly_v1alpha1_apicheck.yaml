@@ -3,4 +3,6 @@ kind: ApiCheck
 metadata:
   name: apicheck-sample
 spec:
-  # TODO(user): Add fields here
+  endpoint: "https://test.com/bla"
+  success: "200"
+  team: bar
