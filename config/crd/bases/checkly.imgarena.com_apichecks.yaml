@@ -15,7 +15,19 @@ spec:
     singular: apicheck
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - description: Name of the monitored endpoint
+      jsonPath: .spec.endpoint
+      name: Endpoint
+      type: string
+    - description: Expected status code
+      jsonPath: .spec.success
+      name: Status code
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: ApiCheck is the Schema for the apichecks API
@@ -67,6 +79,12 @@ spec:
             type: object
           status:
             description: ApiCheckStatus defines the observed state of ApiCheck
+            properties:
+              id:
+                description: ID holds the checkly.com internal ID of the check
+                type: string
+            required:
+            - id
             type: object
         type: object
     served: true

@@ -51,9 +51,15 @@ type ApiCheckSpec struct {
 type ApiCheckStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
+
+	// ID holds the checkly.com internal ID of the check
+	ID string `json:"id"`
 }
 
 //+kubebuilder:object:root=true
+//+kubebuilder:printcolumn:name="Endpoint",type="string",JSONPath=".spec.endpoint",description="Name of the monitored endpoint"
+//+kubebuilder:printcolumn:name="Status code",type="string",JSONPath=".spec.success",description="Expected status code"
+//+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:subresource:status
 
 // ApiCheck is the Schema for the apichecks API

@@ -3,6 +3,6 @@ kind: ApiCheck
 metadata:
   name: apicheck-sample
 spec:
-  endpoint: "https://test.com/bla"
+  endpoint: "https://foo.bar/baz"
   success: "200"
-  team: bar
+  team: qux
