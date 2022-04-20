@@ -6,3 +6,8 @@ spec:
   endpoint: "https://foo.bar/baz"
   success: "200"
   team: qux
+  frequency: 10 # Default 5
+  muted: "true" # Default "false"
+  locations: # Default eu-west-1
+    - eu-west-1
+    - ap-northeast-2
