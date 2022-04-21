@@ -175,7 +175,35 @@ func checklyClient() (client checkly.Client, ctx context.Context, cancel context
 	return
 }
 
-func create(apiCheck *checklyv1alpha1.ApiCheck) (ID string, err error) {
+func checkValueString(x string, y string) (value string) {
+	if x == "" {
+		value = y
+	} else {
+		value = x
+	}
+	return
+}
+
+func checkValueInt(x int, y int) (value int) {
+	if x == 0 {
+		value = y
+	} else {
+		value = x
+	}
+	return
+}
+
+func checkValueArray(x []string, y []string) (value []string) {
+	if len(x) == 0 {
+		value = y
+	} else {
+		value = x
+	}
+	return
+}
+
+// Construct checkly check by analysing the fields from the CRD
+func checklyCheck(apiCheck *checklyv1alpha1.ApiCheck) (check checkly.Check) {
 
 	alertSettings := checkly.AlertSettings{
 		EscalationType: checkly.RunBased,
@@ -194,29 +222,27 @@ func create(apiCheck *checklyv1alpha1.ApiCheck) (ID string, err error) {
 		},
 	}
 
-	check := checkly.Check{
+	check = checkly.Check{
 		Name:                 apiCheck.Name,
 		Type:                 checkly.TypeAPI,
-		Frequency:            5,
+		Frequency:            checkValueInt(apiCheck.Spec.Frequency, 5),
 		DegradedResponseTime: 5000,
-		MaxResponseTime:      15000,
-		Activated:            false, // deactivated for development
-		Muted:                true,  // muted for development
+		MaxResponseTime:      checkValueInt(apiCheck.Spec.MaxResponseTime, 15000),
+		Activated:            true,
+		Muted:                true, // muted for development
 		ShouldFail:           false,
 		DoubleCheck:          false,
 		SSLCheck:             false,
 		LocalSetupScript:     "",
 		LocalTearDownScript:  "",
-		Locations: []string{
-			"eu-west-1",
-			"ap-northeast-2",
-		},
+		Locations:            checkValueArray(apiCheck.Spec.Locations, []string{"eu-west-1"}),
 		Tags: []string{
-			"foo",
-			"bar",
+			apiCheck.Namespace,
+			"checkly-operator",
 		},
 		AlertSettings:          alertSettings,
 		UseGlobalAlertSettings: false,
+		GroupID: 0,
 		Request: checkly.Request{
 			Method:  http.MethodGet,
 			URL:     apiCheck.Spec.Endpoint,
@@ -243,6 +269,13 @@ func create(apiCheck *checklyv1alpha1.ApiCheck) (ID string, err error) {
 			BodyType: "NONE",
 		},
 	}
+
+	return
+}
+
+func create(apiCheck *checklyv1alpha1.ApiCheck) (ID string, err error) {
+
+	check := checklyCheck(apiCheck)
 
 	client, ctx, cancel := checklyClient()
 	defer cancel()
@@ -259,72 +292,7 @@ func create(apiCheck *checklyv1alpha1.ApiCheck) (ID string, err error) {
 
 func update(apiCheck *checklyv1alpha1.ApiCheck) (err error) {
 
-	alertSettings := checkly.AlertSettings{
-		EscalationType: checkly.RunBased,
-		RunBasedEscalation: checkly.RunBasedEscalation{
-			FailedRunThreshold: 5,
-		},
-		TimeBasedEscalation: checkly.TimeBasedEscalation{
-			MinutesFailingThreshold: 5,
-		},
-		Reminders: checkly.Reminders{
-			Interval: 5,
-		},
-		SSLCertificates: checkly.SSLCertificates{
-			Enabled:        false,
-			AlertThreshold: 3,
-		},
-	}
-
-	check := checkly.Check{
-		Name:                 apiCheck.Name,
-		Type:                 checkly.TypeAPI,
-		Frequency:            5,
-		DegradedResponseTime: 5000,
-		MaxResponseTime:      15000,
-		Activated:            false, // deactivated for development
-		Muted:                true,  // muted for development
-		ShouldFail:           false,
-		DoubleCheck:          false,
-		SSLCheck:             false,
-		LocalSetupScript:     "",
-		LocalTearDownScript:  "",
-		Locations: []string{
-			"eu-west-1",
-			"ap-northeast-2",
-		},
-		Tags: []string{
-			"foo",
-			"bar",
-		},
-		AlertSettings:          alertSettings,
-		UseGlobalAlertSettings: false,
-		Request: checkly.Request{
-			Method:  http.MethodGet,
-			URL:     apiCheck.Spec.Endpoint,
-			Headers: []checkly.KeyValue{
-				// {
-				// 	Key:   "X-Test",
-				// 	Value: "foo",
-				// },
-			},
-			QueryParameters: []checkly.KeyValue{
-				// {
-				// 	Key:   "query",
-				// 	Value: "foo",
-				// },
-			},
-			Assertions: []checkly.Assertion{
-				{
-					Source:     checkly.StatusCode,
-					Comparison: checkly.Equals,
-					Target:     apiCheck.Spec.Success,
-				},
-			},
-			Body:     "",
-			BodyType: "NONE",
-		},
-	}
+	check := checklyCheck(apiCheck)
 
 	client, ctx, cancel := checklyClient()
 	defer cancel()

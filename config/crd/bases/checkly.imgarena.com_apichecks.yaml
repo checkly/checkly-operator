@@ -53,7 +53,6 @@ spec:
               frequency:
                 description: Frequency is used to determine the frequency of the checks
                   in minutes, default 5
-                format: int32
                 type: integer
               locations:
                 description: Locations determines the locations where the checks are
@@ -62,6 +61,10 @@ spec:
                 items:
                   type: string
                 type: array
+              maxresponsetime:
+                description: MaxResponseTime determines what the maximum number of
+                  miliseconds can pass before the check fails, default 15000
+                type: integer
               muted:
                 description: Muted determines if the created alert is muted or not,
                   default false
