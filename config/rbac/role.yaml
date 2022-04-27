@@ -32,6 +32,32 @@ rules:
   - patch
   - update
 - apiGroups:
+  - checkly.imgarena.com
+  resources:
+  - groups
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - checkly.imgarena.com
+  resources:
+  - groups/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - checkly.imgarena.com
+  resources:
+  - groups/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
   - networking.k8s.io
   resources:
   - ingresses

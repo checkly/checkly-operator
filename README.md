@@ -1,5 +1,9 @@
 # checkly-operator
 
+A kubernetes operator for [checkly.com](https://checkly.com).
+
+The operator can create checkly.com checks and groups based of kubernetes CRDs.
+
 ## Development
 
 Sources used for kick starting this project:
@@ -28,6 +32,7 @@ Make sure your current kubectl context is set to the appropriate kubernetes clus
 
 ```bash
 kubectl apply -f config/crd/bases/checkly.imgarena.com_apichecks.yaml
+kubectl apply -f config/crd/bases/checkly.imgarena.com_groups.yaml
 make run
 ```
 
@@ -41,7 +46,7 @@ and re-apply the CRD.
 
 Set your default kubernetes context to the cluster you desire to work on.
 
-Modify the [config/samples/checkly_v1alpha1_apicheck.yaml] and apply it.
+Modify the [config/samples/checkly_v1alpha1_apicheck.yaml](config/samples/checkly_v1alpha1_apicheck.yaml) or [config/samples/checkly_v1alpha1_group.yaml](config/samples/checkly_v1alpha1_group.yaml) and apply it.
 
 #### Current settings
 
