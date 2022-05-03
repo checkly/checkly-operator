@@ -8,6 +8,7 @@ spec:
   team: qux
   frequency: 10 # Default 5
   muted: true # Default "false"
-  locations: # Default eu-west-1
-    - eu-west-1
-    - ap-northeast-2
+  group: "group-sample"
+  # locations: # Default eu-west-1
+  #   - eu-west-1
+  #   - ap-northeast-2

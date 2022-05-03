@@ -21,6 +21,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -39,6 +40,7 @@ type ApiCheckReconciler struct {
 //+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks/finalizers,verbs=update
+//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=groups,verbs=get;list
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -109,6 +111,27 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{}, nil
 	}
 
+	// /////////////////////////////
+	// Lookup group ID
+	// ////////////////////////////
+	group := &checklyv1alpha1.Group{}
+	err = r.Get(ctx, types.NamespacedName{Name: apiCheck.Spec.Group, Namespace: apiCheck.Namespace}, group)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			// The resource has been deleted
+			logger.Info("Group not found, probably deleted or does not exist", "name", apiCheck.Spec.Group)
+			return ctrl.Result{}, err
+		}
+		// Error reading the object
+		logger.Error(err, "can't read the group object")
+		return ctrl.Result{}, err
+	}
+
+	if group.Status.ID == 0 {
+		logger.Info("Group ID has not been populated, we're too quick, requeining for retry", "group name", apiCheck.Spec.Group)
+		return ctrl.Result{Requeue: true}, nil
+	}
+
 	// Create internal Check type
 	internalCheck := external.Check{
 		Name:            apiCheck.Name,
@@ -119,6 +142,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		Endpoint:        apiCheck.Spec.Endpoint,
 		SuccessCode:     apiCheck.Spec.Success,
 		ID:              apiCheck.Status.ID,
+		GroupID:         group.Status.ID,
 	}
 
 	// /////////////////////////////
@@ -152,6 +176,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// Update the custom resource Status with the returned ID
 
 	apiCheck.Status.ID = checklyID
+	apiCheck.Status.GroupID = group.Status.ID
 	err = r.Status().Update(ctx, apiCheck)
 	if err != nil {
 		logger.Error(err, "Failed to update ApiCheck status")

@@ -24,6 +24,12 @@ spec:
       jsonPath: .spec.success
       name: Status code
       type: string
+    - jsonPath: .spec.muted
+      name: Muted
+      type: boolean
+    - jsonPath: .spec.group
+      name: Group
+      type: string
     - jsonPath: .metadata.creationTimestamp
       name: Age
       type: date
@@ -54,6 +60,10 @@ spec:
                 description: Frequency is used to determine the frequency of the checks
                   in minutes, default 5
                 type: integer
+              group:
+                description: Group determines in which group does the check belong
+                  to
+                type: string
               locations:
                 description: Locations determines the locations where the checks are
                   run from, see https://www.checklyhq.com/docs/monitoring/global-locations/
@@ -77,16 +87,23 @@ spec:
                 type: string
             required:
             - endpoint
+            - group
             - success
             - team
             type: object
           status:
             description: ApiCheckStatus defines the observed state of ApiCheck
             properties:
+              groupId:
+                description: GroupID holds the ID of the group where the check belongs
+                  to
+                format: int64
+                type: integer
               id:
                 description: ID holds the checkly.com internal ID of the check
                 type: string
             required:
+            - groupId
             - id
             type: object
         type: object

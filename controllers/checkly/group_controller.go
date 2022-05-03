@@ -60,6 +60,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	// ////////////////////////////////
 	// Delete Logic
+	// TODO: Add logic to determine if there are any checks that are part of the group. If yes, throw error and do not delete the group until the checks have been deleted first.
 	// ///////////////////////////////
 	err := r.Get(ctx, req.NamespacedName, group)
 	if err != nil {

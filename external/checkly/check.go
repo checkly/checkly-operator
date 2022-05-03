@@ -15,6 +15,7 @@ type Check struct {
 	Locations       []string
 	Endpoint        string
 	SuccessCode     string
+	GroupID         int64
 	ID              string
 }
 
@@ -57,7 +58,7 @@ func checklyCheck(apiCheck Check) (check checkly.Check) {
 		},
 		AlertSettings:          alertSettings,
 		UseGlobalAlertSettings: false,
-		GroupID:                0,
+		GroupID:                apiCheck.GroupID,
 		Request: checkly.Request{
 			Method:  http.MethodGet,
 			URL:     apiCheck.Endpoint,

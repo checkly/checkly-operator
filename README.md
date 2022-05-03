@@ -12,6 +12,7 @@ Sources used for kick starting this project:
 * https://github.com/checkly/checkly-go-sdk
 * https://docs.okd.io/latest/operators/operator_sdk/golang/osdk-golang-tutorial.html
 * https://sdk.operatorframework.io/docs/building-operators/golang/advanced-topics/#external-resources
+* https://book.kubebuilder.io/cronjob-tutorial/writing-tests.html
 
 ## Running locally
 
@@ -50,4 +51,4 @@ Modify the [config/samples/checkly_v1alpha1_apicheck.yaml](config/samples/checkl
 
 #### Current settings
 
-Any checks created on checkly.com will be muted and disabled.
+Any checks created on checkly.com will be muted.

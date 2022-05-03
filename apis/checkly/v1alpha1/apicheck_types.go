@@ -48,6 +48,9 @@ type ApiCheckSpec struct {
 
 	// MaxResponseTime determines what the maximum number of miliseconds can pass before the check fails, default 15000
 	MaxResponseTime int `json:"maxresponsetime,omitempty"`
+
+	// Group determines in which group does the check belong to
+	Group string `json:"group"`
 }
 
 // ApiCheckStatus defines the observed state of ApiCheck
@@ -57,11 +60,16 @@ type ApiCheckStatus struct {
 
 	// ID holds the checkly.com internal ID of the check
 	ID string `json:"id"`
+
+	// GroupID holds the ID of the group where the check belongs to
+	GroupID int64 `json:"groupId"`
 }
 
 //+kubebuilder:object:root=true
 //+kubebuilder:printcolumn:name="Endpoint",type="string",JSONPath=".spec.endpoint",description="Name of the monitored endpoint"
 //+kubebuilder:printcolumn:name="Status code",type="string",JSONPath=".spec.success",description="Expected status code"
+//+kubebuilder:printcolumn:name="Muted",type="boolean",JSONPath=".spec.muted"
+//+kubebuilder:printcolumn:name="Group",type="string",JSONPath=".spec.group"
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 //+kubebuilder:subresource:status
 
