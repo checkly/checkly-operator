@@ -17,13 +17,18 @@ limitations under the License.
 package checkly
 
 import (
+	"encoding/json"
+	"net/http"
+	"os"
 	"path/filepath"
 	"testing"
 
+	"github.com/checkly/checkly-go-sdk"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	"k8s.io/client-go/kubernetes/scheme"
 	"k8s.io/client-go/rest"
+	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/envtest/printer"
@@ -50,6 +55,8 @@ func TestAPIs(t *testing.T) {
 }
 
 var _ = BeforeSuite(func() {
+	Expect(os.Setenv("USE_EXISTING_CLUSTER", "true")).To(Succeed())
+	Expect(os.Setenv("TEST_ASSET_KUBECTL", "../testbin/bin/kubectl")).To(Succeed())
 	logf.SetLogger(zap.New(zap.WriteTo(GinkgoWriter), zap.UseDevMode(true)))
 
 	By("bootstrapping test environment")
@@ -70,6 +77,69 @@ var _ = BeforeSuite(func() {
 	k8sClient, err = client.New(cfg, client.Options{Scheme: scheme.Scheme})
 	Expect(err).NotTo(HaveOccurred())
 	Expect(k8sClient).NotTo(BeNil())
+
+	k8sManager, err := ctrl.NewManager(cfg, ctrl.Options{
+		Scheme: scheme.Scheme,
+	})
+	Expect(err).ToNot(HaveOccurred())
+
+	// Stub checkly client
+	testClient := checkly.NewClient(
+		"http://localhost:5555",
+		"foobarbaz",
+		nil,
+		nil,
+	)
+	testClient.SetAccountId("1234567890")
+	go func() {
+		http.HandleFunc("/v1/check-groups", func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusCreated)
+			w.Header().Set("Content-Type", "application/json")
+			resp := make(map[string]interface{})
+			resp["id"] = 1
+			jsonResp, _ := json.Marshal(resp)
+			w.Write(jsonResp)
+			return
+		})
+		http.HandleFunc("/v1/check-groups/1", func(w http.ResponseWriter, r *http.Request) {
+			r.ParseForm()
+			method := r.Method
+			switch method {
+			case "PUT":
+				w.WriteHeader(http.StatusOK)
+				w.Header().Set("Content-Type", "application/json")
+				resp := make(map[string]interface{})
+				resp["id"] = 1
+				jsonResp, _ := json.Marshal(resp)
+				w.Write(jsonResp)
+			case "DELETE":
+				w.WriteHeader(http.StatusNoContent)
+			}
+
+			return
+		})
+		http.ListenAndServe(":5555", nil)
+	}()
+
+	err = (&ApiCheckReconciler{
+		Client:    k8sManager.GetClient(),
+		Scheme:    k8sManager.GetScheme(),
+		ApiClient: testClient,
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	err = (&GroupReconciler{
+		Client:    k8sManager.GetClient(),
+		Scheme:    k8sManager.GetScheme(),
+		ApiClient: testClient,
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	go func() {
+		defer GinkgoRecover()
+		err = k8sManager.Start(ctrl.SetupSignalHandler())
+		Expect(err).ToNot(HaveOccurred(), "failed to run manager")
+	}()
 
 }, 60)
 

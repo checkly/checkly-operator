@@ -1,32 +1,8 @@
 package external
 
 import (
-	"os"
 	"testing"
 )
-
-func TestChecklyClient(t *testing.T) {
-	os.Setenv("CHECKLY_API_KEY", "foo")
-	os.Setenv("CHECKLY_ACCOUNT_ID", "bar")
-
-	_, _, _, err := checklyClient()
-
-	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
-	}
-
-	os.Unsetenv("CHECKLY_ACCOUNT_ID")
-	_, _, _, err = checklyClient()
-	if err == nil {
-		t.Error("Expecting error, got none")
-	}
-
-	os.Unsetenv("CHECKLY_API_KEY")
-	_, _, _, err = checklyClient()
-	if err == nil {
-		t.Error("Expecting error, got none")
-	}
-}
 
 func TestCheckValueString(t *testing.T) {
 	defaultValue := "foo"

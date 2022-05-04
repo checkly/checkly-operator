@@ -1,6 +1,9 @@
 package external
 
 import (
+	"context"
+	"time"
+
 	"github.com/checkly/checkly-go-sdk"
 )
 
@@ -53,10 +56,10 @@ func checklyGroup(group Group) (check checkly.Group) {
 	return
 }
 
-func GroupCreate(group Group) (ID int64, err error) {
+func GroupCreate(group Group, client checkly.Client) (ID int64, err error) {
 	groupSetup := checklyGroup(group)
 
-	client, ctx, cancel, _ := checklyClient()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	gotGroup, err := client.CreateGroup(ctx, groupSetup)
@@ -69,11 +72,11 @@ func GroupCreate(group Group) (ID int64, err error) {
 	return
 }
 
-func GroupUpdate(group Group) (err error) {
+func GroupUpdate(group Group, client checkly.Client) (err error) {
 
 	groupSetup := checklyGroup(group)
 
-	client, ctx, cancel, _ := checklyClient()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	_, err = client.UpdateGroup(ctx, group.ID, groupSetup)
@@ -84,8 +87,8 @@ func GroupUpdate(group Group) (err error) {
 	return
 }
 
-func GroupDelete(ID int64) (err error) {
-	client, ctx, cancel, _ := checklyClient()
+func GroupDelete(ID int64, client checkly.Client) (err error) {
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	err = client.DeleteGroup(ctx, ID)

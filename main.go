@@ -17,6 +17,7 @@ limitations under the License.
 package main
 
 import (
+	"errors"
 	"flag"
 	"os"
 
@@ -31,6 +32,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
+	"github.com/checkly/checkly-go-sdk"
 	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
 	checklycontrollers "github.com/imgarena/checkly-operator/controllers/checkly"
 	networkingcontrollers "github.com/imgarena/checkly-operator/controllers/networking"
@@ -79,6 +81,28 @@ func main() {
 		os.Exit(1)
 	}
 
+	baseUrl := "https://api.checklyhq.com"
+	apiKey := os.Getenv("CHECKLY_API_KEY")
+	if apiKey == "" {
+		setupLog.Error(errors.New("Checkly.com API key environment variable is undefined"), "checkly.com credentials missing")
+		os.Exit(1)
+	}
+
+	accountId := os.Getenv("CHECKLY_ACCOUNT_ID")
+	if accountId == "" {
+		setupLog.Error(errors.New("Checkly.com Account ID environment variable is undefined"), "checkly.com credentials missing")
+		os.Exit(1)
+	}
+
+	client := checkly.NewClient(
+		baseUrl,
+		apiKey,
+		nil, //custom http client, defaults to http.DefaultClient
+		nil, //io.Writer to output debug messages
+	)
+
+	client.SetAccountId(accountId)
+
 	if err = (&networkingcontrollers.IngressReconciler{
 		Client: mgr.GetClient(),
 		Scheme: mgr.GetScheme(),
@@ -87,15 +111,17 @@ func main() {
 		os.Exit(1)
 	}
 	if err = (&checklycontrollers.ApiCheckReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:    mgr.GetClient(),
+		Scheme:    mgr.GetScheme(),
+		ApiClient: client,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ApiCheck")
 		os.Exit(1)
 	}
 	if err = (&checklycontrollers.GroupReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:    mgr.GetClient(),
+		Scheme:    mgr.GetScheme(),
+		ApiClient: client,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Group")
 		os.Exit(1)

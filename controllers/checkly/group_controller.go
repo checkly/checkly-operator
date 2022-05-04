@@ -26,6 +26,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/checkly/checkly-go-sdk"
 	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
 	external "github.com/imgarena/checkly-operator/external/checkly"
 )
@@ -33,7 +34,8 @@ import (
 // GroupReconciler reconciles a Group object
 type GroupReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	ApiClient checkly.Client
 }
 
 //+kubebuilder:rbac:groups=checkly.imgarena.com,resources=groups,verbs=get;list;watch;create;update;patch;delete
@@ -76,14 +78,14 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	if group.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(group, groupFinalizer) {
-			logger.Info("Finalizer is present, trying to delete Checkly group", "checkly ID", group.Status.ID)
-			err := external.GroupDelete(group.Status.ID)
+			logger.Info("Finalizer is present, trying to delete Checkly group", "checkly group ID", group.Status.ID)
+			err := external.GroupDelete(group.Status.ID, r.ApiClient)
 			if err != nil {
 				logger.Error(err, "Failed to delete checkly group")
 				return ctrl.Result{}, err
 			}
 
-			logger.Info("Successfully deleted checkly group", "checkly ID", group.Status.ID)
+			logger.Info("Successfully deleted checkly group", "checkly group ID", group.Status.ID)
 
 			controllerutil.RemoveFinalizer(group, groupFinalizer)
 			err = r.Update(ctx, group)
@@ -105,10 +107,10 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		controllerutil.AddFinalizer(group, groupFinalizer)
 		err = r.Update(ctx, group)
 		if err != nil {
-			logger.Error(err, "Failed to update group status")
+			logger.Error(err, "Failed to add finalizer")
 			return ctrl.Result{}, err
 		}
-		logger.Info("Added finalizer", "checkly ID", group.Status.ID)
+		logger.Info("Added finalizer", "checkly group ID", group.Status.ID)
 		return ctrl.Result{}, nil
 	}
 
@@ -129,14 +131,13 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// Determine if it's a new object or if it's an update to an existing object
 	if group.Status.ID != 0 {
 		// Existing object, we need to update it
-		logger.Info("Existing object, with ID", "checkly ID", group.Status.ID)
-		err := external.GroupUpdate(internalCheck)
-		// err :=
+		logger.Info("Existing object, with ID", "checkly group ID", group.Status.ID)
+		err := external.GroupUpdate(internalCheck, r.ApiClient)
 		if err != nil {
 			logger.Error(err, "Failed to update the checkly group")
 			return ctrl.Result{}, err
 		}
-		logger.Info("Updated checkly check", "checkly ID", group.Status.ID)
+		logger.Info("Updated checkly check", "checkly group ID", group.Status.ID)
 		return ctrl.Result{}, nil
 	}
 
@@ -144,10 +145,10 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// Create logic
 	// ////////////////////////////
 
-	checklyID, err := external.GroupCreate(internalCheck)
+	checklyID, err := external.GroupCreate(internalCheck, r.ApiClient)
 	if err != nil {
 		logger.Error(err, "Failed to create checkly group")
-		return ctrl.Result{}, nil
+		return ctrl.Result{}, err
 	}
 
 	// Update the custom resource Status with the returned ID
@@ -155,7 +156,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	group.Status.ID = checklyID
 	err = r.Status().Update(ctx, group)
 	if err != nil {
-		logger.Error(err, "Failed to update group status")
+		logger.Error(err, "Failed to update group status", "ID", group.Status.ID)
 		return ctrl.Result{}, err
 	}
 	logger.Info("New checkly group created", "ID", group.Status.ID)

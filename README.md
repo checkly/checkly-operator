@@ -45,6 +45,12 @@ and re-apply the CRD.
 
 ### Testing the controller
 
+#### Unit and integration tests
+* Make sure your kubectl context is set to your local k8s cluster
+* Run `USE_EXISTING_CLUSTER=true make test`
+* To see coverage run `go tool cover -html=cover.out`
+
+#### Running locally
 Set your default kubernetes context to the cluster you desire to work on.
 
 Modify the [config/samples/checkly_v1alpha1_apicheck.yaml](config/samples/checkly_v1alpha1_apicheck.yaml) or [config/samples/checkly_v1alpha1_group.yaml](config/samples/checkly_v1alpha1_group.yaml) and apply it.

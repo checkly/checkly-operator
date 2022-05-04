@@ -1,7 +1,9 @@
 package external
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/checkly/checkly-go-sdk"
 )
@@ -90,11 +92,11 @@ func checklyCheck(apiCheck Check) (check checkly.Check) {
 }
 
 // Create creates a new checkly.com check
-func Create(apiCheck Check) (ID string, err error) {
+func Create(apiCheck Check, client checkly.Client) (ID string, err error) {
 
 	check := checklyCheck(apiCheck)
 
-	client, ctx, cancel, _ := checklyClient()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	gotCheck, err := client.Create(ctx, check)
@@ -108,11 +110,11 @@ func Create(apiCheck Check) (ID string, err error) {
 }
 
 // Update updates an existing checkly.com check
-func Update(apiCheck Check) (err error) {
+func Update(apiCheck Check, client checkly.Client) (err error) {
 
 	check := checklyCheck(apiCheck)
 
-	client, ctx, cancel, _ := checklyClient()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	_, err = client.Update(ctx, apiCheck.ID, check)
@@ -124,9 +126,9 @@ func Update(apiCheck Check) (err error) {
 }
 
 // Delete deletes an existing checkly.com check
-func Delete(ID string) (err error) {
+func Delete(ID string, client checkly.Client) (err error) {
 
-	client, ctx, cancel, _ := checklyClient()
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 
 	err = client.Delete(ctx, ID)

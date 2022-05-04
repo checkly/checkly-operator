@@ -27,6 +27,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
+	"github.com/checkly/checkly-go-sdk"
 	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
 	external "github.com/imgarena/checkly-operator/external/checkly"
 )
@@ -34,7 +35,8 @@ import (
 // ApiCheckReconciler reconciles a ApiCheck object
 type ApiCheckReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme    *runtime.Scheme
+	ApiClient checkly.Client
 }
 
 //+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks,verbs=get;list;watch;create;update;patch;delete
@@ -76,7 +78,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if apiCheck.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(apiCheck, apiCheckFinalizer) {
 			logger.Info("Finalizer is present, trying to delete Checkly check", "checkly ID", apiCheck.Status.ID)
-			err := external.Delete(apiCheck.Status.ID)
+			err := external.Delete(apiCheck.Status.ID, r.ApiClient)
 			if err != nil {
 				logger.Error(err, "Failed to delete checkly API check")
 				return ctrl.Result{}, err
@@ -153,7 +155,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if apiCheck.Status.ID != "" {
 		// Existing object, we need to update it
 		logger.Info("Existing object, with ID", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint)
-		err := external.Update(internalCheck)
+		err := external.Update(internalCheck, r.ApiClient)
 		// err :=
 		if err != nil {
 			logger.Error(err, "Failed to update the checkly check")
@@ -167,7 +169,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// Create logic
 	// ////////////////////////////
 
-	checklyID, err := external.Create(internalCheck)
+	checklyID, err := external.Create(internalCheck, r.ApiClient)
 	if err != nil {
 		logger.Error(err, "Failed to create checkly alert")
 		return ctrl.Result{}, nil
