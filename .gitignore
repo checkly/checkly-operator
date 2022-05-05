@@ -26,3 +26,6 @@ testbin/*
 
 # direnv
 .envrc
+
+# Generated manifest files
+dry-run/
