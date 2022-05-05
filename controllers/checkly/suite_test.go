@@ -17,6 +17,8 @@ limitations under the License.
 package checkly
 
 import (
+	"encoding/json"
+	"net/http"
 	"os"
 	"path/filepath"
 	"testing"
@@ -89,35 +91,59 @@ var _ = BeforeSuite(func() {
 		nil,
 	)
 	testClient.SetAccountId("1234567890")
-	// go func() {
-	// 	http.HandleFunc("/v1/check-groups", func(w http.ResponseWriter, _ *http.Request) {
-	// 		w.WriteHeader(http.StatusCreated)
-	// 		w.Header().Set("Content-Type", "application/json")
-	// 		resp := make(map[string]interface{})
-	// 		resp["id"] = 1
-	// 		jsonResp, _ := json.Marshal(resp)
-	// 		w.Write(jsonResp)
-	// 		return
-	// 	})
-	// 	http.HandleFunc("/v1/check-groups/1", func(w http.ResponseWriter, r *http.Request) {
-	// 		r.ParseForm()
-	// 		method := r.Method
-	// 		switch method {
-	// 		case "PUT":
-	// 			w.WriteHeader(http.StatusOK)
-	// 			w.Header().Set("Content-Type", "application/json")
-	// 			resp := make(map[string]interface{})
-	// 			resp["id"] = 1
-	// 			jsonResp, _ := json.Marshal(resp)
-	// 			w.Write(jsonResp)
-	// 		case "DELETE":
-	// 			w.WriteHeader(http.StatusNoContent)
-	// 		}
-
-	// 		return
-	// 	})
-	// 	http.ListenAndServe(":5555", nil)
-	// }()
+	go func() {
+		http.HandleFunc("/v1/checks", func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusCreated)
+			w.Header().Set("Content-Type", "application/json")
+			resp := make(map[string]string)
+			resp["id"] = "2"
+			jsonResp, _ := json.Marshal(resp)
+			w.Write(jsonResp)
+			return
+		})
+		http.HandleFunc("/v1/checks/2", func(w http.ResponseWriter, r *http.Request) {
+			r.ParseForm()
+			method := r.Method
+			switch method {
+			case "PUT":
+				w.WriteHeader(http.StatusOK)
+				w.Header().Set("Content-Type", "application/json")
+				resp := make(map[string]string)
+				resp["id"] = "2"
+				jsonResp, _ := json.Marshal(resp)
+				w.Write(jsonResp)
+			case "DELETE":
+				w.WriteHeader(http.StatusNoContent)
+			}
+			return
+		})
+		http.HandleFunc("/v1/check-groups", func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusCreated)
+			w.Header().Set("Content-Type", "application/json")
+			resp := make(map[string]interface{})
+			resp["id"] = 1
+			jsonResp, _ := json.Marshal(resp)
+			w.Write(jsonResp)
+			return
+		})
+		http.HandleFunc("/v1/check-groups/1", func(w http.ResponseWriter, r *http.Request) {
+			r.ParseForm()
+			method := r.Method
+			switch method {
+			case "PUT":
+				w.WriteHeader(http.StatusOK)
+				w.Header().Set("Content-Type", "application/json")
+				resp := make(map[string]interface{})
+				resp["id"] = 1
+				jsonResp, _ := json.Marshal(resp)
+				w.Write(jsonResp)
+			case "DELETE":
+				w.WriteHeader(http.StatusNoContent)
+			}
+			return
+		})
+		http.ListenAndServe(":5555", nil)
+	}()
 
 	err = (&ApiCheckReconciler{
 		Client:    k8sManager.GetClient(),

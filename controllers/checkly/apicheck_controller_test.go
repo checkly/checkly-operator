@@ -2,94 +2,125 @@
 
 package checkly
 
-// import (
-// 	. "github.com/onsi/ginkgo"
-// 	. "github.com/onsi/gomega"
-// )
+import (
+	"context"
+	"time"
 
-// var _ = Describe("ApiCheck Controller", func() {
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
 
-// 	// Define utility constants for object names and testing timeouts/durations and intervals.
-// 	const (
-// 		timeout  = time.Second * 10
-// 		duration = time.Second * 10
-// 		interval = time.Millisecond * 250
-// 	)
+	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
+)
 
-// 	BeforeEach(func() {
-// 		// Add any setup steps that needs to be executed before each test
-// 	})
+var _ = Describe("ApiCheck Controller", func() {
 
-// 	AfterEach(func() {
-// 		// Add any teardown steps that needs to be executed after each test
-// 	})
+	// Define utility constants for object names and testing timeouts/durations and intervals.
+	const (
+		timeout  = time.Second * 10
+		duration = time.Second * 10
+		interval = time.Millisecond * 250
+	)
 
-// 	// Add Tests for OpenAPI validation (or additonal CRD features) specified in
-// 	// your API definition.
-// 	// Avoid adding tests for vanilla CRUD operations because they would
-// 	// test Kubernetes API server, which isn't the goal here.
-// 	Context("ApiCheck without group", func() {
-// 		It("Should create successfully", func() {
+	BeforeEach(func() {
+		// Add any setup steps that needs to be executed before each test
+	})
 
-// 			key := types.NamespacedName{
-// 				Name:      "test-apicheck",
-// 				Namespace: "default",
-// 			}
+	AfterEach(func() {
+		// Add any teardown steps that needs to be executed after each test
+	})
 
-// 			groupKey := types.NamespacedName{
-// 				Name:      "test-group",
-// 				Namespace: "default",
-// 			}
+	// Add Tests for OpenAPI validation (or additonal CRD features) specified in
+	// your API definition.
+	// Avoid adding tests for vanilla CRUD operations because they would
+	// test Kubernetes API server, which isn't the goal here.
+	Context("ApiCheck", func() {
+		It("Full reconciliation", func() {
 
-// 			apiCheck := &checklyv1alpha1.ApiCheck{
-// 				ObjectMeta: metav1.ObjectMeta{
-// 					Name:      key.Name,
-// 					Namespace: key.Namespace,
-// 				},
-// 				Spec: checklyv1alpha1.ApiCheckSpec{
-// 					Team:     groupKey.Name,
-// 					Endpoint: "http://bar.baz/quoz",
-// 					Success:  "200",
-// 				},
-// 			}
+			key := types.NamespacedName{
+				Name:      "test-apicheck",
+				Namespace: "default",
+			}
 
-// 			group := &checklyv1alpha1.Group{
-// 				ObjectMeta: metav1.ObjectMeta{
-// 					Name:      groupKey.Name,
-// 					Namespace: groupKey.Namespace,
-// 				},
-// 				Spec: checklyv1alpha1.GroupSpec{
-// 					Locations: []string{"eu-west-1"},
-// 				},
-// 			}
+			groupKey := types.NamespacedName{
+				Name:      "test-apicheck-group",
+				Namespace: key.Namespace,
+			}
 
-// 			// Create
-// 			Expect(k8sClient.Create(context.Background(), group)).Should(Succeed())
-// 			Expect(k8sClient.Create(context.Background(), apiCheck)).Should(Succeed())
+			group := &checklyv1alpha1.Group{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      groupKey.Name,
+					Namespace: groupKey.Namespace,
+				},
+			}
 
-// 			By("Expecting submitted")
-// 			Eventually(func() bool {
-// 				f := &checklyv1alpha1.ApiCheck{}
-// 				err := k8sClient.Get(context.Background(), key, f)
-// 				if err != nil {
-// 					return false
-// 				}
-// 				return true
-// 			}, timeout, interval).Should(BeTrue())
+			apiCheck := &checklyv1alpha1.ApiCheck{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      key.Name,
+					Namespace: key.Namespace,
+				},
+				Spec: checklyv1alpha1.ApiCheckSpec{
+					Team:     "does-not-exist",
+					Endpoint: "http://bar.baz/quoz",
+					Success:  "200",
+					Group:    groupKey.Name,
+				},
+			}
 
-// 			// // Delete
-// 			// By("Expecting to delete successfully")
-// 			// Eventually(func() error {
-// 			// 	f := &databricksv1.Dcluster{}
-// 			// 	k8sClient.Get(context.Background(), key, f)
-// 			// 	return k8sClient.Delete(context.Background(), f)
-// 			// }, timeout, interval).Should(Succeed())
+			// Create
+			Expect(k8sClient.Create(context.Background(), group)).Should(Succeed())
+			Expect(k8sClient.Create(context.Background(), apiCheck)).Should(Succeed())
 
-// 			// By("Expecting to delete finish")
-// 			// Eventually(func() error {
-// 			// 	f := &databricksv1.Dcluster{}
-// 			// 	return k8sClient.Get(context.Background(), key, f)
-// 			// }, timeout, interval).ShouldNot(Succeed())
-// 		})
-// 	})
-// })
+			By("Expecting submitted")
+			Eventually(func() bool {
+				f := &checklyv1alpha1.ApiCheck{}
+				err := k8sClient.Get(context.Background(), key, f)
+				if err != nil {
+					return false
+				}
+				return true
+			}, timeout, interval).Should(BeTrue())
+
+			// Status.ID should be present
+			By("Expecting group ID")
+			Eventually(func() bool {
+				f := &checklyv1alpha1.ApiCheck{}
+				err := k8sClient.Get(context.Background(), key, f)
+				if f.Status.ID == "2" && err == nil {
+					return true
+				} else {
+					return false
+				}
+			}, timeout, interval).Should(BeTrue())
+
+			// Finalizer should be present
+			By("Expecting finalizer")
+			Eventually(func() bool {
+				f := &checklyv1alpha1.ApiCheck{}
+				err := k8sClient.Get(context.Background(), key, f)
+				if len(f.Finalizers) == 1 && err == nil {
+					return true
+				} else {
+					return false
+				}
+			}, timeout, interval).Should(BeTrue())
+
+			// Delete
+			Expect(k8sClient.Delete(context.Background(), group)).Should(Succeed())
+
+			By("Expecting to delete successfully")
+			Eventually(func() error {
+				f := &checklyv1alpha1.ApiCheck{}
+				k8sClient.Get(context.Background(), key, f)
+				return k8sClient.Delete(context.Background(), f)
+			}, timeout, interval).Should(Succeed())
+
+			By("Expecting delete to finish")
+			Eventually(func() error {
+				f := &checklyv1alpha1.ApiCheck{}
+				return k8sClient.Get(context.Background(), key, f)
+			}, timeout, interval).ShouldNot(Succeed())
+		})
+	})
+})

@@ -118,9 +118,6 @@ func Update(apiCheck Check, client checkly.Client) (err error) {
 	defer cancel()
 
 	_, err = client.Update(ctx, apiCheck.ID, check)
-	if err != nil {
-		return
-	}
 
 	return
 }
