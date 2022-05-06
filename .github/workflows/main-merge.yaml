@@ -1,0 +1,56 @@
+name: Build and push
+on:
+  push:
+    branches: [ main ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  USE_EXISTING_CLUSTER: true
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v1
+
+      - name: Set up Go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.17
+
+      - name: Start kind cluster
+        uses: helm/kind-action@v1.2.0
+        with:
+          version: "v0.12.0"
+
+      - name: Test code
+        env:
+          USE_EXISTING_CLUSTER: true
+        run: |
+          make test
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build docker container
+        env:
+          DOCKER_TAG: ${{ github.sha }}
+          DOCKER_CONTAINER: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        run: |
+          docker build -t ${DOCKER_CONTAINER,,}:${DOCKER_TAG} .
+        # ${var,,} makes var all lowercase
+
+      - name: Push docker container
+        env:
+          DOCKER_TAG: ${{ github.sha }}
+          DOCKER_CONTAINER: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        run: |
+          docker push ${DOCKER_CONTAINER,,}:${DOCKER_TAG}
+        # ${var,,} makes var all lowercase
