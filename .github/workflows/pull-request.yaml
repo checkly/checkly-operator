@@ -21,16 +21,6 @@ jobs:
         with:
           go-version: 1.17
 
-      - name: Download operatork-sdk
-        env:
-          OPERATOR_SDK_VERSION: "v1.18.1" # The operator-sdk version to download (if necessary) and use.
-        run: |
-          export ARCH=$(case $(uname -m) in x86_64) echo -n amd64 ;; aarch64) echo -n arm64 ;; *) echo -n $(uname -m) ;; esac)
-          export OS=$(uname | awk '{print tolower($0)}')
-          export OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/${OPERATORK_SDK_VERSION}
-          curl -LO ${OPERATOR_SDK_DL_URL}/operator-sdk_${OS}_${ARCH}
-          chmod +x operator-sdk_${OS}_${ARCH} && sudo mv operator-sdk_${OS}_${ARCH} /usr/local/bin/operator-sdk
-
       - name: Start kind cluster
         uses: helm/kind-action@v1.2.0
         with:
@@ -41,13 +31,6 @@ jobs:
           USE_EXISTING_CLUSTER: true
         run: |
           make test
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build docker container
         env:
