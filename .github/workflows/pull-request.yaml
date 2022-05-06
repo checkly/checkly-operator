@@ -7,6 +7,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: imgarena/checkly-operator
   USE_EXISTING_CLUSTER: true
+  GO_MODULES: on
 
 jobs:
   build:
@@ -40,7 +41,15 @@ jobs:
         env:
           USE_EXISTING_CLUSTER: true
         run: |
-          make test
+          make test-ci
+
+      # Sonarcloud
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GO_MODULES: "on"
 
       # Docker build specifics
       - name: Docker meta
@@ -61,3 +70,4 @@ jobs:
           platforms: linux/amd64,linux/arm/v7
           push: false
           tags: ${{ steps.docker_meta.outputs.tags }}
+
