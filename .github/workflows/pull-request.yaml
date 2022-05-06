@@ -67,7 +67,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm/v7
+          # platforms: linux/amd64,linux/arm/v7 - TODO figure out how to build arm/v7 images
+          platforms: linux/amd64
           push: false
           tags: ${{ steps.docker_meta.outputs.tags }}
 
