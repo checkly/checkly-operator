@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: imgarena/checkly-operator
   USE_EXISTING_CLUSTER: true
 
 jobs:
@@ -21,6 +21,16 @@ jobs:
         with:
           go-version: 1.17
 
+      # For multi-arch docker builds
+      # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
+      # We need kind to test the code
       - name: Start kind cluster
         uses: helm/kind-action@v1.2.0
         with:
@@ -32,10 +42,22 @@ jobs:
         run: |
           make test
 
-      - name: Build docker container
-        env:
-          DOCKER_TAG: ${{ github.sha }}
-          DOCKER_CONTAINER: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-        run: |
-          docker build -t ${DOCKER_CONTAINER,,}:${DOCKER_TAG} .
-        # ${var,,} makes var all lowercase
+      # Docker build specifics
+      - name: Docker meta
+        id: docker_meta # you'll use this in the next step
+        uses: docker/metadata-action@v3
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          # Docker tags based on the following events/attributes
+          tags: |
+            type=sha
+
+      - name: Build multi-platform images
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm/v7
+          push: false
+          tags: ${{ steps.docker_meta.outputs.tags }}
