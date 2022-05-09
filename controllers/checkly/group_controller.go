@@ -44,10 +44,6 @@ type GroupReconciler struct {
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the Group object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
 //
 // For more details, check Reconcile and its Result here:
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
@@ -72,10 +68,11 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object
-		logger.Error(err, "can't read the object")
+		logger.Error(err, "can't read the Group object")
 		return ctrl.Result{}, nil
 	}
 
+	// If DeletionTimestamp is present, the object is marked for deletion, we need to remove the finalizer
 	if group.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(group, groupFinalizer) {
 			logger.Info("Finalizer is present, trying to delete Checkly group", "checkly group ID", group.Status.ID)
@@ -98,7 +95,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	// Object found, let's do something with it. It's either updated, or it's new.
-	logger.Info("Object found")
+	logger.Info("Checkly group found")
 
 	// /////////////////////////////
 	// Finalizer logic
@@ -107,7 +104,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		controllerutil.AddFinalizer(group, groupFinalizer)
 		err = r.Update(ctx, group)
 		if err != nil {
-			logger.Error(err, "Failed to add finalizer")
+			logger.Error(err, "Failed to add Group finalizer")
 			return ctrl.Result{}, err
 		}
 		logger.Info("Added finalizer", "checkly group ID", group.Status.ID)
@@ -144,7 +141,6 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// /////////////////////////////
 	// Create logic
 	// ////////////////////////////
-
 	checklyID, err := external.GroupCreate(internalCheck, r.ApiClient)
 	if err != nil {
 		logger.Error(err, "Failed to create checkly group")
@@ -152,7 +148,6 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	// Update the custom resource Status with the returned ID
-
 	group.Status.ID = checklyID
 	err = r.Status().Update(ctx, group)
 	if err != nil {
@@ -162,9 +157,6 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	logger.Info("New checkly group created", "ID", group.Status.ID)
 
 	return ctrl.Result{}, nil
-	// TODO(user): your logic here
-
-	// return ctrl.Result{}, nil
 }
 
 // SetupWithManager sets up the controller with the Manager.
