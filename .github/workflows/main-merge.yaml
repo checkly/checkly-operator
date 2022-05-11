@@ -56,6 +56,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Check Dockerfile with hadolint
+      - uses: hadolint/hadolint-action@v2.1.0
+        with:
+          dockerfile: Dockerfile
+
       # Docker build specifics
       - name: Docker meta
         id: docker_meta # you'll use this in the next step
