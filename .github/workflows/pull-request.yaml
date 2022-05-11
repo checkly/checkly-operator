@@ -69,6 +69,14 @@ jobs:
           context: .
           # platforms: linux/amd64,linux/arm/v7 - TODO figure out how to build arm/v7 images
           platforms: linux/amd64
-          push: false
+          load: true
           tags: ${{ steps.docker_meta.outputs.tags }}
 
+      - name: Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        env:
+          IMAGE_TAG: ${{ steps.docker_meta.outputs.tags }}
+        with:
+          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          format: 'table'
+          exit-code: '1'
