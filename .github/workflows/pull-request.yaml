@@ -80,8 +80,8 @@ jobs:
       - name: Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         env:
-          IMAGE_TAG: ${{ steps.docker_meta.outputs.tags }}
+          IMAGE: ${{ steps.docker_meta.outputs.tags }}
         with:
-          image-ref: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ env.IMAGE_TAG }}
+          image-ref: ${{ env.IMAGE }}
           format: 'table'
           exit-code: '1'
