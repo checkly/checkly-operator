@@ -1,0 +1,33 @@
+{
+  "name": "checkly-operator",
+  "version": "0.0.0-development",
+  "description": "A kubernetes operator for checklyhq.com",
+  "main": "main.go",
+  "scripts": {
+    "semantic-release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/IMGARENA/checkly-operator.git"
+  },
+  "author": "Akos Veres",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/IMGARENA/checkly-operator/issues"
+  },
+  "homepage": "https://github.com/IMGARENA/checkly-operator#readme",
+  "devDependencies": {
+    "semantic-release": "^19.0.2"
+  },
+  "release": {
+    "branches": [
+      "+([0-9])?(.{+([0-9]),x}).x",
+      "main"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/github"
+    ]
+  }
+}
