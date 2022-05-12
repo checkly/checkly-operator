@@ -33,6 +33,17 @@ spec:
         - --leader-elect
         image: controller:latest
         name: manager
+        env:
+        - name: CHECKLY_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: checkly
+              key: CHECKLY_API_KEY
+        - name: CHECKLY_ACCOUNT_ID
+          valueFrom:
+            secretKeyRef:
+              name: checkly
+              key: CHECKLY_ACCOUNT_ID
         securityContext:
           allowPrivilegeEscalation: false
         livenessProbe:
