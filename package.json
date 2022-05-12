@@ -40,7 +40,7 @@
             {
               "path": "dry-run/manifests.yaml",
               "name": "install-${nextRelease.gitTag}.yaml",
-              "label": "Kubernetes manifest files"
+              "label": "install-${nextRelease.gitTag}.yaml"
             }
           ]
         }
