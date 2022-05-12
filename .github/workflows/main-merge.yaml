@@ -81,6 +81,10 @@ jobs:
           format: 'table'
           exit-code: '1'
 
+      - name: NPM Install packages for semantic-release
+        run: |
+          npm install
+
       - name: Release
         uses: cycjimmy/semantic-release-action@v3
         id: semantic # The `id` for output variables
