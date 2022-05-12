@@ -18,19 +18,13 @@ Sources used for kick starting this project:
 
 ## Running in kubernetes
 
-To get the manifest files (for now) you need to clone the repository and generate the files:
-
-```
-VERSION=1.0.0 make dry-run
-```
-
-Make sure you update the VERSION env variable to the one you want to run, check our Releases page.
+You can download the combined kubernetes resource manifest file from [the release page](https://github.com/IMGARENA/checkly-operator/releases) for a specific version.
 
 The `CHECKLY_API_KEY` and `CHECKLY_ACCOUNT_ID` should be environment variables attached to the container, make sure you create these as secrets and are available before you apply the resource manifests.
 
 Once you have all the files, you can just apply the generated manifest files:
 ```
-kubectl apply -f dry-run/manifests.yaml
+kubectl apply -f install-(version).yaml
 ```
 
 ## Running locally
