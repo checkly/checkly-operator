@@ -21,13 +21,19 @@
   },
   "release": {
     "branches": [
-      "+([0-9])?(.{+([0-9]),x}).x",
       "main"
     ],
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
-      "@semantic-release/github"
+      ["@semantic-release/exec", {
+        "prepareCmd": "VERSION=${nextRelease.gitTag} make dry-run"
+      }],
+      ["@semantic-release/github", {
+        "assets": [
+          {"path": "dry-run/manifests.yaml", "name": "install-${nextRelease.gitTag}.yaml", "label": "Kubernetes manifest files"}
+        ]
+      }]
     ]
   }
 }
