@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/IMGARENA/checkly-operator#readme",
   "devDependencies": {
-    "semantic-release": "^19.0.2",
-    "semantic-release/exec": "^6.0.3"
+    "@semantic-release/exec": "^6.0.3",
+    "semantic-release": "^19.0.2"
   },
   "release": {
     "branches": [
@@ -27,14 +27,24 @@
     "plugins": [
       "@semantic-release/commit-analyzer",
       "@semantic-release/release-notes-generator",
-      ["@semantic-release/exec", {
-        "prepareCmd": "VERSION=${nextRelease.gitTag} make dry-run"
-      }],
-      ["@semantic-release/github", {
-        "assets": [
-          {"path": "dry-run/manifests.yaml", "name": "install-${nextRelease.gitTag}.yaml", "label": "Kubernetes manifest files"}
-        ]
-      }]
+      [
+        "@semantic-release/exec",
+        {
+          "prepareCmd": "VERSION=${nextRelease.gitTag} make dry-run"
+        }
+      ],
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "dry-run/manifests.yaml",
+              "name": "install-${nextRelease.gitTag}.yaml",
+              "label": "Kubernetes manifest files"
+            }
+          ]
+        }
+      ]
     ]
   }
 }
