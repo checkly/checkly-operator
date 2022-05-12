@@ -43,7 +43,7 @@ type GroupStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// ID holds the ID of the created checkly.com group
+	// ID holds the ID of the created checklyhq.com group
 	ID int64 `json:"ID"`
 }
 

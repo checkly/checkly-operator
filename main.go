@@ -84,13 +84,13 @@ func main() {
 	baseUrl := "https://api.checklyhq.com"
 	apiKey := os.Getenv("CHECKLY_API_KEY")
 	if apiKey == "" {
-		setupLog.Error(errors.New("Checkly.com API key environment variable is undefined"), "checkly.com credentials missing")
+		setupLog.Error(errors.New("checklyhq.com API key environment variable is undefined"), "checklyhq.com credentials missing")
 		os.Exit(1)
 	}
 
 	accountId := os.Getenv("CHECKLY_ACCOUNT_ID")
 	if accountId == "" {
-		setupLog.Error(errors.New("Checkly.com Account ID environment variable is undefined"), "checkly.com credentials missing")
+		setupLog.Error(errors.New("checklyhq.com Account ID environment variable is undefined"), "checklyhq.com credentials missing")
 		os.Exit(1)
 	}
 

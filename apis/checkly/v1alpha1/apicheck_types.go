@@ -58,7 +58,7 @@ type ApiCheckStatus struct {
 	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// ID holds the checkly.com internal ID of the check
+	// ID holds the checklyhq.com internal ID of the check
 	ID string `json:"id"`
 
 	// GroupID holds the ID of the group where the check belongs to

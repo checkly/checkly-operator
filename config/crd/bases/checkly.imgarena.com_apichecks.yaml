@@ -100,7 +100,7 @@ spec:
                 format: int64
                 type: integer
               id:
-                description: ID holds the checkly.com internal ID of the check
+                description: ID holds the checklyhq.com internal ID of the check
                 type: string
             required:
             - groupId

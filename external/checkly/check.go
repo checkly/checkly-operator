@@ -107,7 +107,7 @@ func checklyCheck(apiCheck Check) (check checkly.Check) {
 	return
 }
 
-// Create creates a new checkly.com check
+// Create creates a new checklyhq.com check
 func Create(apiCheck Check, client checkly.Client) (ID string, err error) {
 
 	check := checklyCheck(apiCheck)
@@ -125,7 +125,7 @@ func Create(apiCheck Check, client checkly.Client) (ID string, err error) {
 	return
 }
 
-// Update updates an existing checkly.com check
+// Update updates an existing checklyhq.com check
 func Update(apiCheck Check, client checkly.Client) (err error) {
 
 	check := checklyCheck(apiCheck)
@@ -138,7 +138,7 @@ func Update(apiCheck Check, client checkly.Client) (err error) {
 	return
 }
 
-// Delete deletes an existing checkly.com check
+// Delete deletes an existing checklyhq.com check
 func Delete(ID string, client checkly.Client) (err error) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)

@@ -2,9 +2,9 @@
 
 [![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=IMGARENA_checkly-operator&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=IMGARENA_checkly-operator) [![Build and push](https://github.com/IMGARENA/checkly-operator/actions/workflows/main-merge.yaml/badge.svg)](https://github.com/IMGARENA/checkly-operator/actions/workflows/main-merge.yaml) [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=IMGARENA_checkly-operator&metric=coverage)](https://sonarcloud.io/summary/new_code?id=IMGARENA_checkly-operator)
 
-A kubernetes operator for [checkly.com](https://checkly.com).
+A kubernetes operator for [checklyhq.com](https://checklyhq.com).
 
-The operator can create checkly.com checks and groups based of kubernetes CRDs.
+The operator can create checklyhq.com checks and groups based of kubernetes CRDs.
 
 ## Development
 
@@ -70,4 +70,4 @@ Modify the [config/samples/checkly_v1alpha1_apicheck.yaml](config/samples/checkl
 
 #### Current settings
 
-Any checks created on checkly.com will be muted.
+Any checks created on checklyhq.com will be muted.

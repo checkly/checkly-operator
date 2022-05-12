@@ -56,7 +56,7 @@ spec:
             description: GroupStatus defines the observed state of Group
             properties:
               ID:
-                description: ID holds the ID of the created checkly.com group
+                description: ID holds the ID of the created checklyhq.com group
                 format: int64
                 type: integer
             required:
