@@ -30,7 +30,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "VERSION=${nextRelease.gitTag} make dry-run"
+          "prepareCmd": "VERSION=${nextRelease.version} make dry-run"
         }
       ],
       [
