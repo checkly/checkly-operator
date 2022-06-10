@@ -29,6 +29,12 @@ kubectl apply -f install-(version).yaml
 
 ## Running locally
 
+## Versions
+
+We're using the following versions of packaes:
+* operator-sdk 1.21.0
+* golang 1.17
+
 ### direnv
 
 We're using [direnv](https://direnv.net/) to manage environment variables for this project (or export them manually and you can skip this step). Make sure you generate a checkly API key and you get the account ID as well.
