@@ -41,45 +41,32 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GO_MODULES: "on"
 
+# Docker buildx does not allow for multi architecture builds and loading the docker container locally, 
+# this way we can not run trivy against the containers, one solution is to run multiple jobs for each arch
+
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v1
+
+      # For multi-arch docker builds
+      # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+
       - name: Log in to the Container registry
         uses: docker/login-action@f054a8b539a109f9f41c372932f1ae047eff08c9
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
-      # Check Dockerfile with hadolint
-      - uses: hadolint/hadolint-action@v2.1.0
-        with:
-          dockerfile: Dockerfile
-
-      # Docker build specifics
-      - name: Docker meta
-        id: docker_meta # you'll use this in the next step
-        uses: docker/metadata-action@v3
-        with:
-          # list of Docker images to use as base name for tags
-          images: |
-            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          # Docker tags based on the following events/attributes
-          tags: |
-            type=sha
-
-      - name: Build multi-platform images
-        uses: docker/build-push-action@v2
-        with:
-          context: .
-          # platforms: linux/amd64,linux/arm/v7 - TODO figure out how to build arm/v7 images
-          platforms: linux/amd64
-          load: true
-          tags: ${{ steps.docker_meta.outputs.tags }}
-
-      - name: Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          image-ref: ${{ steps.docker_meta.outputs.tags }}
-          format: 'table'
-          exit-code: '1'
 
       - name: NPM Install packages for semantic-release
         run: |
@@ -91,13 +78,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Tag docker container for release
-        if: ${{ steps.semantic.outputs.new_release_version }}
-        env:
-          IMAGE: ${{ env.REGISTRY }}/${{env.IMAGE_NAME}}:${{ steps.semantic.outputs.new_release_version }}
-        run: |
-          docker tag ${{ steps.docker_meta.outputs.tags }} ${{ env.IMAGE }}
-
       - name: Build multi-platform images
         uses: docker/build-push-action@v2
         if: ${{ steps.semantic.outputs.new_release_version }}
@@ -106,7 +86,6 @@ jobs:
           IMAGE: ${{ env.REGISTRY }}/${{env.IMAGE_NAME}}:${{ steps.semantic.outputs.new_release_version }}
         with:
           context: .
-          # platforms: linux/amd64,linux/arm/v7 - TODO figure out how to build arm/v7 images
-          platforms: linux/amd64
+          platforms: linux/amd64, linux/arm, linux/arm64
           push: true
           tags: ${{ env.IMAGE }}
