@@ -10,8 +10,9 @@ env:
   GO_MODULES: on
 
 jobs:
-  build:
-    name: Build
+
+  golang:
+    name: Golang build
     runs-on: ubuntu-latest
     steps:
       - name: Check out source code
@@ -21,15 +22,6 @@ jobs:
         uses: actions/setup-go@v1
         with:
           go-version: 1.18
-
-      # For multi-arch docker builds
-      # https://github.com/docker/setup-qemu-action
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v1
-      # https://github.com/docker/setup-buildx-action
-      - name: Set up Docker Buildx
-        id: buildx
-        uses: docker/setup-buildx-action@v1
 
       # We need kind to test the code
       - name: Start kind cluster
@@ -50,6 +42,30 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information, if any
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           GO_MODULES: "on"
+
+# Docker buildx does not allow for multi architecture builds and loading the docker container locally, 
+# this way we can not run trivy against the containers, one solution is to run multiple jobs for each arch
+# ARM builds are really slow, we're only doing it in the `main-merge` workflow.
+  docker:
+    name: Docker build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        # arch: ["amd64", "arm64", "arm"]
+        arch: ["amd64"]
+    steps:
+      - name: Check out source code
+        uses: actions/checkout@v1
+
+      # For multi-arch docker builds
+      # https://github.com/docker/setup-qemu-action
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v1
+
+      # https://github.com/docker/setup-buildx-action
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
 
       # Docker build specifics
       - name: Docker meta
@@ -72,9 +88,8 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          platforms: linux/amd64,linux/arm64
-          # platforms: linux/amd64
-          load: false
+          platforms: ${{ matrix.arch }}
+          load: true
           tags: ${{ steps.docker_meta.outputs.tags }}
 
       - name: Trivy vulnerability scanner
@@ -85,3 +100,4 @@ jobs:
           image-ref: ${{ env.IMAGE }}
           format: 'table'
           exit-code: '1'
+
