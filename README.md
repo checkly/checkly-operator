@@ -32,8 +32,8 @@ kubectl apply -f install-(version).yaml
 ## Versions
 
 We're using the following versions of packaes:
-* operator-sdk 1.21.0
-* golang 1.17
+* operator-sdk 1.22.0
+* golang 1.18
 
 ### direnv
 
