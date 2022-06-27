@@ -4,7 +4,7 @@
 
 A kubernetes operator for [checklyhq.com](https://checklyhq.com).
 
-The operator can create checklyhq.com checks and groups based of kubernetes CRDs.
+The operator can create checklyhq.com checks and groups based of kubernetes CRDs and Ingress object annotations.
 
 ## Development
 
@@ -27,11 +27,18 @@ Once you have all the files, you can just apply the generated manifest files:
 kubectl apply -f install-(version).yaml
 ```
 
+### Ingress configuration
+
+We support reading configuration from ingress resources, take a look at the [samples](config/samples/) directory.
+
+> **Warning**
+> Groups have to exist before the Ingress object, so please at least apply 1 group CRD.
+
 ## Running locally
 
 ## Versions
 
-We're using the following versions of packaes:
+We're using the following versions of packages:
 * operator-sdk 1.22.0
 * golang 1.18
 

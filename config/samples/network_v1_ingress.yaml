@@ -1,0 +1,23 @@
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-sample
+  annotations:
+    checkly.imgarena.com/enabled: "true"
+    checkly.imgarena.com/path: "/baz"
+    # checkly.imgarena.com/endpoint: "foo.baaz" - Default read from spec.rules[0].host
+    # checkly.imgarena.com/success: "200" - Default "200"
+    checkly.imgarena.com/group: "group-sample"
+spec:
+  rules:
+    - host: "foo.bar"
+      http:
+        paths:
+          - path: /
+            pathType: ImplementationSpecific
+            backend:
+              service:
+                name: test-service
+                port:
+                  number: 8080
