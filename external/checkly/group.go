@@ -54,7 +54,7 @@ func checklyGroup(group Group) (check checkly.Group) {
 	check = checkly.Group{
 		Name:                group.Name,
 		Activated:           true,
-		Muted:               true, // muted for development
+		Muted:               false, // muted for development
 		DoubleCheck:         false,
 		LocalSetupScript:    "",
 		LocalTearDownScript: "",

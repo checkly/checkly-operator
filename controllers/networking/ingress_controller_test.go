@@ -102,6 +102,7 @@ var _ = Describe("Ingress Controller", func() {
 				Expect(f.Spec.Endpoint == fmt.Sprintf("https://%s%s", testHost, testPath)).To(BeTrue())
 				Expect(f.Spec.Group).To(Equal(testGroup))
 				Expect(f.Spec.Success).To(Equal(testSuccessCode))
+				Expect(f.Spec.Muted).To(Equal(true))
 
 				for _, o := range f.OwnerReferences {
 					if o.Name != key.Name {
@@ -118,6 +119,7 @@ var _ = Describe("Ingress Controller", func() {
 			annotation["checkly.imgarena.com/path"] = updatePath
 			annotation["checkly.imgarena.com/endpoint"] = updateHost
 			annotation["checkly.imgarena.com/success"] = ""
+			annotation["checkly.imgarena.com/muted"] = "false"
 			ingress = &networkingv1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:        key.Name,
@@ -151,6 +153,10 @@ var _ = Describe("Ingress Controller", func() {
 				}
 
 				if f.Spec.Success != "200" {
+					return false
+				}
+
+				if f.Spec.Muted {
 					return false
 				}
 
@@ -218,6 +224,7 @@ var _ = Describe("Ingress Controller", func() {
 			annotation["checkly.imgarena.com/enabled"] = "false"
 			annotation["checkly.imgarena.com/path"] = testPath
 			annotation["checkly.imgarena.com/success"] = testSuccessCode
+			annotation["checkly.imgarena.com/muted"] = "false"
 
 			rules := make([]networkingv1.IngressRule, 0)
 			rules = append(rules, networkingv1.IngressRule{
@@ -244,10 +251,13 @@ var _ = Describe("Ingress Controller", func() {
 			}
 			Expect(k8sClient.Create(context.Background(), ingress)).Should(Succeed())
 
-			// Test group annotation missing
+			time.Sleep(time.Second * 5)
+
+			updated := &networkingv1.Ingress{}
+			Expect(k8sClient.Get(context.Background(), key, updated)).Should(Succeed())
 			annotation["checkly.imgarena.com/enabled"] = "true"
-			ingress.Annotations = annotation
-			Expect(k8sClient.Update(context.Background(), ingress)).Should(Succeed())
+			updated.Annotations = annotation
+			Expect(k8sClient.Update(context.Background(), updated)).Should(Succeed())
 
 			// Delete
 			By("Expecting to delete successfully")

@@ -37,9 +37,6 @@ type ApiCheckSpec struct {
 	// Locations determines the locations where the checks are run from, see https://www.checklyhq.com/docs/monitoring/global-locations/ for a list, use AWS Region codes, ex. eu-west-1 for Ireland
 	Locations []string `json:"locations,omitempty"`
 
-	// Team determines who owns this API Check
-	Team string `json:"team"`
-
 	// Endpoint determines which URL to monitor, ex. https://foo.bar/baz
 	Endpoint string `json:"endpoint"`
 

@@ -9,6 +9,7 @@ metadata:
     # checkly.imgarena.com/endpoint: "foo.baaz" - Default read from spec.rules[0].host
     # checkly.imgarena.com/success: "200" - Default "200"
     checkly.imgarena.com/group: "group-sample"
+    # checkly.imgarena.com/muted: "false" # If not set, default "true"
 spec:
   rules:
     - host: "foo.bar"

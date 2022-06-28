@@ -35,6 +35,7 @@ type Check struct {
 	SuccessCode     string
 	GroupID         int64
 	ID              string
+	Muted           bool
 }
 
 func checklyCheck(apiCheck Check) (check checkly.Check) {
@@ -63,7 +64,7 @@ func checklyCheck(apiCheck Check) (check checkly.Check) {
 		DegradedResponseTime: 5000,
 		MaxResponseTime:      checkValueInt(apiCheck.MaxResponseTime, 15000),
 		Activated:            true,
-		Muted:                true, // muted for development
+		Muted:                apiCheck.Muted, // muted for development
 		ShouldFail:           false,
 		DoubleCheck:          false,
 		SSLCheck:             false,

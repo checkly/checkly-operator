@@ -34,6 +34,7 @@ func TestChecklyCheck(t *testing.T) {
 		Locations:       []string{"basement"},
 		Endpoint:        "https://foo.bar/baz",
 		SuccessCode:     "200",
+		Muted:           true,
 	}
 
 	testData := checklyCheck(data)
@@ -48,6 +49,10 @@ func TestChecklyCheck(t *testing.T) {
 
 	if testData.MaxResponseTime != data.MaxResponseTime {
 		t.Errorf("Expected %d, got %d", data.Frequency, testData.Frequency)
+	}
+
+	if testData.Muted != data.Muted {
+		t.Errorf("Expected %t, got %t", data.Muted, testData.Muted)
 	}
 
 	data = Check{
