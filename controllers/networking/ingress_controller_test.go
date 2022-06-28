@@ -244,10 +244,13 @@ var _ = Describe("Ingress Controller", func() {
 			}
 			Expect(k8sClient.Create(context.Background(), ingress)).Should(Succeed())
 
-			// Test group annotation missing
+			time.Sleep(time.Second * 5)
+
+			updated := &networkingv1.Ingress{}
+			Expect(k8sClient.Get(context.Background(), key, updated)).Should(Succeed())
 			annotation["checkly.imgarena.com/enabled"] = "true"
-			ingress.Annotations = annotation
-			Expect(k8sClient.Update(context.Background(), ingress)).Should(Succeed())
+			updated.Annotations = annotation
+			Expect(k8sClient.Update(context.Background(), updated)).Should(Succeed())
 
 			// Delete
 			By("Expecting to delete successfully")
