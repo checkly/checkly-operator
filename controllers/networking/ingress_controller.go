@@ -178,7 +178,6 @@ func (r *IngressReconciler) gatherApiCheckData(ingress *networkingv1.Ingress) (a
 	apiCheckSpec = checklyv1alpha1.ApiCheckSpec{
 		Endpoint: endpoint,
 		Group:    group,
-		Team:     "group-test",
 		Success:  success,
 	}
 

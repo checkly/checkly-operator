@@ -77,10 +77,10 @@ var _ = Describe("ApiCheck Controller", func() {
 					Namespace: key.Namespace,
 				},
 				Spec: checklyv1alpha1.ApiCheckSpec{
-					Team:     "does-not-exist",
 					Endpoint: "http://bar.baz/quoz",
 					Success:  "200",
 					Group:    groupKey.Name,
+					Muted:    true,
 				},
 			}
 
@@ -103,11 +103,15 @@ var _ = Describe("ApiCheck Controller", func() {
 			Eventually(func() bool {
 				f := &checklyv1alpha1.ApiCheck{}
 				err := k8sClient.Get(context.Background(), key, f)
-				if f.Status.ID == "2" && err == nil {
-					return true
-				} else {
+				if f.Status.ID != "2" && err != nil {
 					return false
 				}
+
+				if f.Spec.Muted != true {
+					return false
+				}
+
+				return true
 			}, timeout, interval).Should(BeTrue())
 
 			// Finalizer should be present
