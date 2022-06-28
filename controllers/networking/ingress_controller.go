@@ -143,6 +143,7 @@ func (r *IngressReconciler) gatherApiCheckData(ingress *networkingv1.Ingress) (a
 	annotationEndpoint := fmt.Sprintf("%s/endpoint", annotationHost)
 	annotationSuccess := fmt.Sprintf("%s/success", annotationHost)
 	annotationGroup := fmt.Sprintf("%s/group", annotationHost)
+	annotationMuted := fmt.Sprintf("%s/muted", annotationHost)
 
 	// Construct the endpoint
 	path := ""
@@ -175,10 +176,19 @@ func (r *IngressReconciler) gatherApiCheckData(ingress *networkingv1.Ingress) (a
 		err = fmt.Errorf("could not find a value for the group annotation, can't continue without one")
 	}
 
+	// Muted
+	var muted bool
+	if ingress.Annotations[annotationMuted] == "false" {
+		muted = false
+	} else {
+		muted = true
+	}
+
 	apiCheckSpec = checklyv1alpha1.ApiCheckSpec{
 		Endpoint: endpoint,
 		Group:    group,
 		Success:  success,
+		Muted:    muted,
 	}
 
 	// Last return
