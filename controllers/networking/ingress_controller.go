@@ -39,8 +39,8 @@ type IngressReconciler struct {
 //+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;update;patch
 //+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses/finalizers,verbs=update
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=apichecks,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=apichecks/status,verbs=get;update;patch
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -67,7 +67,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	logger.Info("Ingress Object found")
 
 	// Check if annotation is present on the object
-	checklyAnnotation := ingress.Annotations["checkly.imgarena.com/enabled"] == "true"
+	checklyAnnotation := ingress.Annotations["k8s.checklyhq.com/enabled"] == "true"
 	if !checklyAnnotation {
 		// Annotation may have been removed or updated, we have to determine if we need to delete a previously created ApiCheck resource
 		logger.Info("annotation is not present, checking if ApiCheck was created")
@@ -138,7 +138,7 @@ func (r *IngressReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *IngressReconciler) gatherApiCheckData(ingress *networkingv1.Ingress) (apiCheckSpec checklyv1alpha1.ApiCheckSpec, err error) {
 
-	annotationHost := "checkly.imgarena.com"
+	annotationHost := "k8s.checklyhq.com"
 	annotationPath := fmt.Sprintf("%s/path", annotationHost)
 	annotationEndpoint := fmt.Sprintf("%s/endpoint", annotationHost)
 	annotationSuccess := fmt.Sprintf("%s/success", annotationHost)

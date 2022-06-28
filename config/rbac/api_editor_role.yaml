@@ -5,7 +5,7 @@ metadata:
   name: api-editor-role
 rules:
 - apiGroups:
-  - check.imgarena.com
+  - check.checklyhq.com
   resources:
   - apis
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - check.imgarena.com
+  - check.checklyhq.com
   resources:
   - apis/status
   verbs:

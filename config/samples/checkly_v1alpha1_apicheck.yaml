@@ -1,4 +1,4 @@
-apiVersion: checkly.imgarena.com/v1alpha1
+apiVersion: k8s.checklyhq.com/v1alpha1
 kind: ApiCheck
 metadata:
   name: apicheck-sample

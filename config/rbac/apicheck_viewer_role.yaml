@@ -5,7 +5,7 @@ metadata:
   name: apicheck-viewer-role
 rules:
 - apiGroups:
-  - checkly.imgarena.com
+  - k8s.checklyhq.com
   resources:
   - apichecks
   verbs:
@@ -13,7 +13,7 @@ rules:
   - list
   - watch
 - apiGroups:
-  - checkly.imgarena.com
+  - k8s.checklyhq.com
   resources:
   - apichecks/status
   verbs:
