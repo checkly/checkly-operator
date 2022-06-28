@@ -38,9 +38,9 @@ type GroupReconciler struct {
 	ApiClient checkly.Client
 }
 
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=groups,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=groups/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=groups/finalizers,verbs=update
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=groups,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=groups/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=groups/finalizers,verbs=update
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -52,7 +52,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	logger.Info("Reconciler started")
 
-	groupFinalizer := "checkly.imgarena.com/finalizer"
+	groupFinalizer := "k8s.checklyhq.com/finalizer"
 
 	group := &checklyv1alpha1.Group{}
 

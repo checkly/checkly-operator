@@ -39,10 +39,10 @@ type ApiCheckReconciler struct {
 	ApiClient checkly.Client
 }
 
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks,verbs=get;list;watch;create;update;patch;delete
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks/status,verbs=get;update;patch
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=apichecks/finalizers,verbs=update
-//+kubebuilder:rbac:groups=checkly.imgarena.com,resources=groups,verbs=get;list
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=apichecks,verbs=get;list;watch;create;update;patch;delete
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=apichecks/status,verbs=get;update;patch
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=apichecks/finalizers,verbs=update
+//+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=groups,verbs=get;list
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -56,7 +56,7 @@ type ApiCheckReconciler struct {
 func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	apiCheckFinalizer := "checkly.imgarena.com/finalizer"
+	apiCheckFinalizer := "k8s.checklyhq.com/finalizer"
 
 	apiCheck := &checklyv1alpha1.ApiCheck{}
 

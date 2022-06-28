@@ -8,4 +8,4 @@ webhook:
   port: 9443
 leaderElection:
   leaderElect: true
-  resourceName: 4e7eab13.imgarena.com
+  resourceName: 4e7eab13.checklyhq.com

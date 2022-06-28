@@ -58,8 +58,8 @@ direnv allow .
 Make sure your current kubectl context is set to the appropriate kubernetes cluster where you want to test the operator, then run
 
 ```bash
-kubectl apply -f config/crd/bases/checkly.imgarena.com_apichecks.yaml
-kubectl apply -f config/crd/bases/checkly.imgarena.com_groups.yaml
+kubectl apply -f config/crd/bases/k8s.checklyhq.com_apichecks.yaml
+kubectl apply -f config/crd/bases/k8s.checklyhq.com_groups.yaml
 make run
 ```
 

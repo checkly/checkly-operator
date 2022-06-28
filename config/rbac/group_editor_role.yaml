@@ -5,7 +5,7 @@ metadata:
   name: group-editor-role
 rules:
 - apiGroups:
-  - checkly.imgarena.com
+  - k8s.checklyhq.com
   resources:
   - groups
   verbs:
@@ -17,7 +17,7 @@ rules:
   - update
   - watch
 - apiGroups:
-  - checkly.imgarena.com
+  - k8s.checklyhq.com
   resources:
   - groups/status
   verbs:
