@@ -35,7 +35,7 @@ import (
 	logf "sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
-	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
+	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
 	//+kubebuilder:scaffold:imports
 )
 
