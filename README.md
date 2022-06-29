@@ -83,4 +83,4 @@ Modify the [config/samples/checkly_v1alpha1_apicheck.yaml](config/samples/checkl
 
 #### Current settings
 
-Any checks created on checklyhq.com will be muted.
+Any checks created on [checklyhq.com](https://checklyhq.com) will be muted.
