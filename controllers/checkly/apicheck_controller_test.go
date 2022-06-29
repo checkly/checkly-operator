@@ -25,7 +25,7 @@ import (
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 
-	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
+	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )

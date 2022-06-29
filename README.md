@@ -1,6 +1,6 @@
 # checkly-operator
 
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=IMGARENA_checkly-operator&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=IMGARENA_checkly-operator) [![Build and push](https://github.com/IMGARENA/checkly-operator/actions/workflows/main-merge.yaml/badge.svg)](https://github.com/IMGARENA/checkly-operator/actions/workflows/main-merge.yaml) [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=IMGARENA_checkly-operator&metric=coverage)](https://sonarcloud.io/summary/new_code?id=IMGARENA_checkly-operator)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=checkly_checkly-operator&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=checkly_checkly-operator) [![Build and push](https://github.com/checkly/checkly-operator/actions/workflows/main-merge.yaml/badge.svg)](https://github.com/checkly/checkly-operator/actions/workflows/main-merge.yaml) [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=checkly_checkly-operator&metric=coverage)](https://sonarcloud.io/summary/new_code?id=checkly_checkly-operator)
 
 A kubernetes operator for [checklyhq.com](https://checklyhq.com).
 
@@ -18,7 +18,7 @@ Sources used for kick starting this project:
 
 ## Running in kubernetes
 
-You can download the combined kubernetes resource manifest file from [the release page](https://github.com/IMGARENA/checkly-operator/releases) for a specific version.
+You can download the combined kubernetes resource manifest file from [the release page](https://github.com/checkly/checkly-operator/releases) for a specific version.
 
 The `CHECKLY_API_KEY` and `CHECKLY_ACCOUNT_ID` should be environment variables attached to the container, make sure you create these as secrets and are available before you apply the resource manifests.
 

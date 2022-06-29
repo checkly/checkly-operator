@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
+	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	networkingv1 "k8s.io/api/networking/v1"

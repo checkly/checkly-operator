@@ -33,9 +33,9 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/checkly/checkly-go-sdk"
-	checklyv1alpha1 "github.com/imgarena/checkly-operator/apis/checkly/v1alpha1"
-	checklycontrollers "github.com/imgarena/checkly-operator/controllers/checkly"
-	networkingcontrollers "github.com/imgarena/checkly-operator/controllers/networking"
+	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
+	checklycontrollers "github.com/checkly/checkly-operator/controllers/checkly"
+	networkingcontrollers "github.com/checkly/checkly-operator/controllers/networking"
 	//+kubebuilder:scaffold:imports
 )
 

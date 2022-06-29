@@ -5,7 +5,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: imgarena/checkly-operator
+  IMAGE_NAME: checkly/checkly-operator
   USE_EXISTING_CLUSTER: true
   GO_MODULES: on
 

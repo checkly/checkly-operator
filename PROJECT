@@ -6,7 +6,7 @@ plugins:
   manifests.sdk.operatorframework.io/v2: {}
   scorecard.sdk.operatorframework.io/v2: {}
 projectName: checkly-operator
-repo: github.com/imgarena/checkly-operator
+repo: github.com/checkly/checkly-operator
 resources:
 - controller: true
   domain: k8s.io
@@ -21,7 +21,7 @@ resources:
   domain: checklyhq.com
   group: k8s
   kind: ApiCheck
-  path: github.com/imgarena/checkly-operator/apis/checkly/v1alpha1
+  path: github.com/checkly/checkly-operator/apis/checkly/v1alpha1
   version: v1alpha1
 - api:
     crdVersion: v1
@@ -30,6 +30,6 @@ resources:
   domain: checklyhq.com
   group: k8s
   kind: Group
-  path: github.com/imgarena/checkly-operator/apis/checkly/v1alpha1
+  path: github.com/checkly/checkly-operator/apis/checkly/v1alpha1
   version: v1alpha1
 version: "3"

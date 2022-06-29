@@ -1,4 +1,4 @@
-module github.com/imgarena/checkly-operator
+module github.com/checkly/checkly-operator
 
 go 1.18
 
