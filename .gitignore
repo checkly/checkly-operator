@@ -29,3 +29,6 @@ testbin/*
 
 # Generated manifest files
 dry-run/
+
+# vscode
+.vscode

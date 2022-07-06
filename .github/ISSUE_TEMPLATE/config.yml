@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions
+    url: https://github.com/checkly/checkly-operator/discussions
+    about: Ask questions and discuss with other community members
