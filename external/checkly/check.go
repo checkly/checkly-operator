@@ -30,7 +30,6 @@ type Check struct {
 	Namespace       string
 	Frequency       int
 	MaxResponseTime int
-	Locations       []string
 	Endpoint        string
 	SuccessCode     string
 	GroupID         int64
@@ -70,7 +69,7 @@ func checklyCheck(apiCheck Check) (check checkly.Check) {
 		SSLCheck:             false,
 		LocalSetupScript:     "",
 		LocalTearDownScript:  "",
-		Locations:            checkValueArray(apiCheck.Locations, []string{"eu-west-1"}),
+		Locations:            []string{},
 		Tags: []string{
 			apiCheck.Namespace,
 			"checkly-operator",

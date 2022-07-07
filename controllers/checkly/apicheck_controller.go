@@ -140,7 +140,6 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		Namespace:       apiCheck.Namespace,
 		Frequency:       apiCheck.Spec.Frequency,
 		MaxResponseTime: apiCheck.Spec.MaxResponseTime,
-		Locations:       apiCheck.Spec.Locations,
 		Endpoint:        apiCheck.Spec.Endpoint,
 		SuccessCode:     apiCheck.Spec.Success,
 		ID:              apiCheck.Status.ID,

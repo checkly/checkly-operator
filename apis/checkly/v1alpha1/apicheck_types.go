@@ -34,9 +34,6 @@ type ApiCheckSpec struct {
 	// Muted determines if the created alert is muted or not, default false
 	Muted bool `json:"muted,omitempty"`
 
-	// Locations determines the locations where the checks are run from, see https://www.checklyhq.com/docs/monitoring/global-locations/ for a list, use AWS Region codes, ex. eu-west-1 for Ireland
-	Locations []string `json:"locations,omitempty"`
-
 	// Endpoint determines which URL to monitor, ex. https://foo.bar/baz
 	Endpoint string `json:"endpoint"`
 
