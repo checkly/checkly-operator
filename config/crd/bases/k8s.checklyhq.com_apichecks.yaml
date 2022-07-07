@@ -64,13 +64,6 @@ spec:
                 description: Group determines in which group does the check belong
                   to
                 type: string
-              locations:
-                description: Locations determines the locations where the checks are
-                  run from, see https://www.checklyhq.com/docs/monitoring/global-locations/
-                  for a list, use AWS Region codes, ex. eu-west-1 for Ireland
-                items:
-                  type: string
-                type: array
               maxresponsetime:
                 description: MaxResponseTime determines what the maximum number of
                   miliseconds can pass before the check fails, default 15000

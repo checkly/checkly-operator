@@ -9,6 +9,3 @@ spec:
   frequency: 10 # Default 5
   muted: true # Default "false"
   group: "group-sample"
-  # locations: # Default eu-west-1
-  #   - eu-west-1
-  #   - ap-northeast-2
