@@ -172,7 +172,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	checklyID, err := external.Create(internalCheck, r.ApiClient)
 	if err != nil {
 		logger.Error(err, "Failed to create checkly alert")
-		return ctrl.Result{}, nil
+		return ctrl.Result{}, err
 	}
 
 	// Update the custom resource Status with the returned ID

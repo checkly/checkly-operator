@@ -19,6 +19,7 @@ package external
 import (
 	"context"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/checkly/checkly-go-sdk"
@@ -37,7 +38,12 @@ type Check struct {
 	Muted           bool
 }
 
-func checklyCheck(apiCheck Check) (check checkly.Check) {
+func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
+
+	shouldFail, err := shouldFail(apiCheck.SuccessCode)
+	if err != nil {
+		return
+	}
 
 	alertSettings := checkly.AlertSettings{
 		EscalationType: checkly.RunBased,
@@ -64,7 +70,7 @@ func checklyCheck(apiCheck Check) (check checkly.Check) {
 		MaxResponseTime:      checkValueInt(apiCheck.MaxResponseTime, 15000),
 		Activated:            true,
 		Muted:                apiCheck.Muted, // muted for development
-		ShouldFail:           false,
+		ShouldFail:           shouldFail,
 		DoubleCheck:          false,
 		SSLCheck:             false,
 		LocalSetupScript:     "",
@@ -110,7 +116,10 @@ func checklyCheck(apiCheck Check) (check checkly.Check) {
 // Create creates a new checklyhq.com check
 func Create(apiCheck Check, client checkly.Client) (ID string, err error) {
 
-	check := checklyCheck(apiCheck)
+	check, err := checklyCheck(apiCheck)
+	if err != nil {
+		return
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -128,7 +137,10 @@ func Create(apiCheck Check, client checkly.Client) (ID string, err error) {
 // Update updates an existing checklyhq.com check
 func Update(apiCheck Check, client checkly.Client) (err error) {
 
-	check := checklyCheck(apiCheck)
+	check, err := checklyCheck(apiCheck)
+	if err != nil {
+		return
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -147,4 +159,16 @@ func Delete(ID string, client checkly.Client) (err error) {
 	err = client.Delete(ctx, ID)
 
 	return
+}
+
+func shouldFail(successCode string) (bool, error) {
+	code, err := strconv.Atoi(successCode)
+	if err != nil {
+		return false, err
+	}
+	if code < 400 {
+		return false, nil
+	} else {
+		return true, nil
+	}
 }

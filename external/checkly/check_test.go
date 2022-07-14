@@ -26,49 +26,69 @@ import (
 
 func TestChecklyCheck(t *testing.T) {
 
-	data := Check{
+	data1 := Check{
 		Name:            "foo",
 		Namespace:       "bar",
 		Frequency:       15,
 		MaxResponseTime: 2000,
 		Endpoint:        "https://foo.bar/baz",
-		SuccessCode:     "200",
+		SuccessCode:     "403",
 		Muted:           true,
 	}
 
-	testData := checklyCheck(data)
+	testData, _ := checklyCheck(data1)
 
-	if testData.Name != data.Name {
-		t.Errorf("Expected %s, got %s", data.Name, testData.Name)
+	if testData.Name != data1.Name {
+		t.Errorf("Expected %s, got %s", data1.Name, testData.Name)
 	}
 
-	if testData.Frequency != data.Frequency {
-		t.Errorf("Expected %d, got %d", data.Frequency, testData.Frequency)
+	if testData.Frequency != data1.Frequency {
+		t.Errorf("Expected %d, got %d", data1.Frequency, testData.Frequency)
 	}
 
-	if testData.MaxResponseTime != data.MaxResponseTime {
-		t.Errorf("Expected %d, got %d", data.Frequency, testData.Frequency)
+	if testData.MaxResponseTime != data1.MaxResponseTime {
+		t.Errorf("Expected %d, got %d", data1.MaxResponseTime, testData.MaxResponseTime)
 	}
 
-	if testData.Muted != data.Muted {
-		t.Errorf("Expected %t, got %t", data.Muted, testData.Muted)
+	if testData.Muted != data1.Muted {
+		t.Errorf("Expected %t, got %t", data1.Muted, testData.Muted)
 	}
 
-	data = Check{
+	if testData.ShouldFail != true {
+		t.Errorf("Expected %t, got %t", true, testData.ShouldFail)
+	}
+
+	data2 := Check{
 		Name:        "foo",
 		Namespace:   "bar",
 		Endpoint:    "https://foo.bar/baz",
 		SuccessCode: "200",
 	}
 
-	testData = checklyCheck(data)
+	testData, _ = checklyCheck(data2)
 
 	if testData.Frequency != 5 {
-		t.Errorf("Expected %d, got %d", data.Frequency, testData.Frequency)
+		t.Errorf("Expected %d, got %d", 5, testData.Frequency)
 	}
 
 	if testData.MaxResponseTime != 15000 {
-		t.Errorf("Expected %d, got %d", data.Frequency, testData.Frequency)
+		t.Errorf("Expected %d, got %d", 15000, testData.MaxResponseTime)
+	}
+
+	if testData.ShouldFail != false {
+		t.Errorf("Expected %t, got %t", false, testData.ShouldFail)
+	}
+
+	failData := Check{
+		Name:        "fail",
+		Namespace:   "bar",
+		Endpoint:    "https://foo.bar/baz",
+		SuccessCode: "foo",
+	}
+
+	_, err := checklyCheck(failData)
+	if err == nil {
+		t.Error("Expected error, got nil")
 	}
 
 	return
@@ -198,4 +218,32 @@ func TestChecklyCheckActions(t *testing.T) {
 	}
 
 	return
+}
+
+func TestShouldFail(t *testing.T) {
+	testTrue := "401"
+	testFalse := "200"
+	testErr := "foo"
+
+	testResponse, err := shouldFail(testTrue)
+	if err != nil {
+		t.Errorf("Expected no error, got %e", err)
+	}
+	if testResponse != true {
+		t.Errorf("Expected true, got %t", testResponse)
+	}
+
+	testResponse, err = shouldFail(testFalse)
+	if err != nil {
+		t.Errorf("Expected no error, got %e", err)
+	}
+	if testResponse != false {
+		t.Errorf("Expected false, got %t", testResponse)
+	}
+
+	_, err = shouldFail(testErr)
+	if err == nil {
+		t.Errorf("Expected error, got none")
+	}
+
 }
