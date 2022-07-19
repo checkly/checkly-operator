@@ -145,6 +145,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		ID:              apiCheck.Status.ID,
 		GroupID:         group.Status.ID,
 		Muted:           apiCheck.Spec.Muted,
+		Labels:          apiCheck.Labels,
 	}
 
 	// /////////////////////////////

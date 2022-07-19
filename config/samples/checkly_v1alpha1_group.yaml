@@ -2,6 +2,8 @@ apiVersion: k8s.checklyhq.com/v1alpha1
 kind: Group
 metadata:
   name: group-sample
+  labels:
+    environment: "local"
 spec:
   locations:
     - eu-west-1

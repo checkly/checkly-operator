@@ -2,10 +2,11 @@ apiVersion: k8s.checklyhq.com/v1alpha1
 kind: ApiCheck
 metadata:
   name: apicheck-sample
+  labels:
+    service: "foo"
 spec:
   endpoint: "https://foo.bar/baz"
   success: "200"
-  team: qux
   frequency: 10 # Default 5
   muted: true # Default "false"
   group: "group-sample"
