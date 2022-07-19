@@ -119,6 +119,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		Locations:     group.Spec.Locations,
 		AlertChannels: group.Spec.AlertChannels,
 		ID:            group.Status.ID,
+		Labels:        group.Labels,
 	}
 
 	// /////////////////////////////

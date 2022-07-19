@@ -76,3 +76,20 @@ func TestCheckValueArray(t *testing.T) {
 	}
 
 }
+
+func TestGetTags(t *testing.T) {
+	var data = make(map[string]string)
+	data["foo"] = "bar"
+
+	response := getTags(data)
+	if len(response) != 1 {
+		t.Errorf("Expected 1 item, got %d", len(response))
+	}
+
+	for _, v := range response {
+		if v != "foo:bar" {
+			t.Errorf("Expected foo:bar, got %s", v)
+		}
+	}
+
+}

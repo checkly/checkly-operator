@@ -30,9 +30,14 @@ type Group struct {
 	Locations     []string
 	Activated     bool
 	AlertChannels []string
+	Labels        map[string]string
 }
 
 func checklyGroup(group Group) (check checkly.Group) {
+
+	tags := getTags(group.Labels)
+	tags = append(tags, "checkly-operator")
+	tags = append(tags, group.Namespace)
 
 	alertSettings := checkly.AlertSettings{
 		EscalationType: checkly.RunBased,
@@ -52,18 +57,15 @@ func checklyGroup(group Group) (check checkly.Group) {
 	}
 
 	check = checkly.Group{
-		Name:                group.Name,
-		Activated:           true,
-		Muted:               false, // muted for development
-		DoubleCheck:         false,
-		LocalSetupScript:    "",
-		LocalTearDownScript: "",
-		Concurrency:         2,
-		Locations:           checkValueArray(group.Locations, []string{"eu-west-1"}),
-		Tags: []string{
-			group.Namespace,
-			"checkly-operator",
-		},
+		Name:                      group.Name,
+		Activated:                 true,
+		Muted:                     false, // muted for development
+		DoubleCheck:               false,
+		LocalSetupScript:          "",
+		LocalTearDownScript:       "",
+		Concurrency:               2,
+		Locations:                 checkValueArray(group.Locations, []string{"eu-west-1"}),
+		Tags:                      tags,
 		AlertSettings:             alertSettings,
 		UseGlobalAlertSettings:    false,
 		AlertChannelSubscriptions: []checkly.AlertChannelSubscription{},

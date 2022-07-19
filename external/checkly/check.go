@@ -36,6 +36,7 @@ type Check struct {
 	GroupID         int64
 	ID              string
 	Muted           bool
+	Labels          map[string]string
 }
 
 func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
@@ -44,6 +45,10 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 	if err != nil {
 		return
 	}
+
+	tags := getTags(apiCheck.Labels)
+	tags = append(tags, "checkly-operator")
+	tags = append(tags, apiCheck.Namespace)
 
 	alertSettings := checkly.AlertSettings{
 		EscalationType: checkly.RunBased,
@@ -63,23 +68,20 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 	}
 
 	check = checkly.Check{
-		Name:                 apiCheck.Name,
-		Type:                 checkly.TypeAPI,
-		Frequency:            checkValueInt(apiCheck.Frequency, 5),
-		DegradedResponseTime: 5000,
-		MaxResponseTime:      checkValueInt(apiCheck.MaxResponseTime, 15000),
-		Activated:            true,
-		Muted:                apiCheck.Muted, // muted for development
-		ShouldFail:           shouldFail,
-		DoubleCheck:          false,
-		SSLCheck:             false,
-		LocalSetupScript:     "",
-		LocalTearDownScript:  "",
-		Locations:            []string{},
-		Tags: []string{
-			apiCheck.Namespace,
-			"checkly-operator",
-		},
+		Name:                   apiCheck.Name,
+		Type:                   checkly.TypeAPI,
+		Frequency:              checkValueInt(apiCheck.Frequency, 5),
+		DegradedResponseTime:   5000,
+		MaxResponseTime:        checkValueInt(apiCheck.MaxResponseTime, 15000),
+		Activated:              true,
+		Muted:                  apiCheck.Muted, // muted for development
+		ShouldFail:             shouldFail,
+		DoubleCheck:            false,
+		SSLCheck:               false,
+		LocalSetupScript:       "",
+		LocalTearDownScript:    "",
+		Locations:              []string{},
+		Tags:                   tags,
 		AlertSettings:          alertSettings,
 		UseGlobalAlertSettings: false,
 		GroupID:                apiCheck.GroupID,
