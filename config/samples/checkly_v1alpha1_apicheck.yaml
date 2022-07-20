@@ -10,3 +10,4 @@ spec:
   frequency: 10 # Default 5
   muted: true # Default "false"
   group: "group-sample"
+  groupnamespace: "default" # If not specified, the controller assumes the group is in the same namespace 
