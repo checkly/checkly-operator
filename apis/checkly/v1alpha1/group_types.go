@@ -49,6 +49,7 @@ type GroupStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
+//+kubebuilder:resource:scope=Cluster
 
 // Group is the Schema for the groups API
 type Group struct {

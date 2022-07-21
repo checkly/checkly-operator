@@ -51,14 +51,12 @@ var _ = Describe("ApiCheck Controller", func() {
 
 			updatedLocations := []string{"eu-west-2", "eu-west-1"}
 			groupKey := types.NamespacedName{
-				Name:      "test-group",
-				Namespace: "default",
+				Name: "test-group",
 			}
 
 			group := &checklyv1alpha1.Group{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      groupKey.Name,
-					Namespace: groupKey.Namespace,
+					Name: groupKey.Name,
 				},
 				Spec: checklyv1alpha1.GroupSpec{
 					Locations: []string{"eu-west-1"},

@@ -114,7 +114,6 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// Create internal Check type
 	internalCheck := external.Group{
 		Name:          group.Name,
-		Namespace:     group.Namespace,
 		Activated:     group.Spec.Activated,
 		Locations:     group.Spec.Locations,
 		AlertChannels: group.Spec.AlertChannels,

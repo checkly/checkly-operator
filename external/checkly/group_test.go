@@ -21,7 +21,6 @@ import "testing"
 func TestChecklyGroup(t *testing.T) {
 	data := Group{
 		Name:      "foo",
-		Namespace: "bar",
 		Locations: []string{"basement"},
 	}
 

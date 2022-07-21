@@ -117,7 +117,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// Lookup group ID
 	// ////////////////////////////
 	group := &checklyv1alpha1.Group{}
-	err = r.Get(ctx, types.NamespacedName{Name: apiCheck.Spec.Group, Namespace: apiCheck.Namespace}, group)
+	err = r.Get(ctx, types.NamespacedName{Name: apiCheck.Spec.Group}, group)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// The resource has been deleted

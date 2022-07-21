@@ -60,14 +60,12 @@ var _ = Describe("ApiCheck Controller", func() {
 			}
 
 			groupKey := types.NamespacedName{
-				Name:      "test-apicheck-group",
-				Namespace: key.Namespace,
+				Name: "test-apicheck-group",
 			}
 
 			group := &checklyv1alpha1.Group{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      groupKey.Name,
-					Namespace: groupKey.Namespace,
+					Name: groupKey.Name,
 				},
 			}
 
