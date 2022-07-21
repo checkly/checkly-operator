@@ -126,35 +126,8 @@ var _ = Describe("ApiCheck Controller", func() {
 				}
 			}, timeout, interval).Should(BeTrue())
 
-			// Update
-			groupUpdateNS := "kube-system"
-			groupUpdate := &checklyv1alpha1.Group{
-				ObjectMeta: metav1.ObjectMeta{
-					Name:      groupKey.Name,
-					Namespace: groupUpdateNS,
-				},
-			}
-			Expect(k8sClient.Create(context.Background(), groupUpdate)).Should(Succeed())
-
-			apiCheckRaw := &checklyv1alpha1.ApiCheck{}
-			Expect(k8sClient.Get(context.Background(), key, apiCheckRaw)).Should(Succeed())
-			apiCheckRaw.Spec.GroupNamespace = groupUpdateNS
-			Expect(k8sClient.Update(context.Background(), apiCheckRaw)).Should(Succeed())
-
-			By("Expecting groupnamespace to change")
-			Eventually(func() bool {
-				f := &checklyv1alpha1.ApiCheck{}
-				err := k8sClient.Get(context.Background(), key, f)
-				if err == nil && f.Spec.GroupNamespace == groupUpdateNS {
-					return true
-				}
-				return false
-
-			}, timeout, interval).Should(BeTrue())
-
 			// Delete
 			Expect(k8sClient.Delete(context.Background(), group)).Should(Succeed())
-			Expect(k8sClient.Delete(context.Background(), groupUpdate)).Should(Succeed())
 
 			By("Expecting to delete successfully")
 			Eventually(func() error {

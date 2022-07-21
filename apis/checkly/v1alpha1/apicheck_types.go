@@ -45,9 +45,6 @@ type ApiCheckSpec struct {
 
 	// Group determines in which group does the check belong to
 	Group string `json:"group"`
-
-	// GroupNamespace determine in which namespace was the group defined
-	GroupNamespace string `json:"groupnamespace,omitempty"`
 }
 
 // ApiCheckStatus defines the observed state of ApiCheck

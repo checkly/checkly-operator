@@ -64,10 +64,6 @@ spec:
                 description: Group determines in which group does the check belong
                   to
                 type: string
-              groupnamespace:
-                description: GroupNamespace determine in which namespace was the group
-                  defined
-                type: string
               maxresponsetime:
                 description: MaxResponseTime determines what the maximum number of
                   miliseconds can pass before the check fails, default 15000
