@@ -13,7 +13,7 @@ spec:
     listKind: GroupList
     plural: groups
     singular: group
-  scope: Namespaced
+  scope: Cluster
   versions:
   - name: v1alpha1
     schema:

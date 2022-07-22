@@ -25,7 +25,6 @@ import (
 
 type Group struct {
 	Name          string
-	Namespace     string
 	ID            int64
 	Locations     []string
 	Activated     bool
@@ -37,7 +36,6 @@ func checklyGroup(group Group) (check checkly.Group) {
 
 	tags := getTags(group.Labels)
 	tags = append(tags, "checkly-operator")
-	tags = append(tags, group.Namespace)
 
 	alertSettings := checkly.AlertSettings{
 		EscalationType: checkly.RunBased,
