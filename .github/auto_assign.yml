@@ -1,0 +1,12 @@
+addReviewers: true
+addAssignees: author
+
+reviewers:
+  - akosveres
+  - ianaya89
+
+
+skipKeywords:
+  - wip
+
+numberOfReviewers: 2
