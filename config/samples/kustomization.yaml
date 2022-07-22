@@ -3,4 +3,5 @@ resources:
 - networking_v1_ingress.yaml
 - checkly_v1alpha1_apicheck.yaml
 - checkly_v1alpha1_group.yaml
+- checkly_v1alpha1_alertchannel.yaml
 #+kubebuilder:scaffold:manifestskustomizesamples

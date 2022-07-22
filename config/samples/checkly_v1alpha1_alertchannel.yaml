@@ -1,0 +1,15 @@
+apiVersion: k8s.checklyhq.com/v1alpha1
+kind: AlertChannel
+metadata:
+  name: alertchannel-sample
+spec:
+# only one of the bellow can be specified at once, either email or opsgenie
+  email:
+    address: "foo@bar.baz"
+  # opsgenie:
+  #   apikey:
+  #     name: test-secret # Name of the secret which holds the API key
+  #     namespace: default # Namespace of the secret
+  #     fieldPath: "TEST" # Key inside the secret
+  #    priority: "P3"
+  #    region: "US"

@@ -8,3 +8,5 @@ spec:
   locations:
     - eu-west-1
     - eu-west-2
+  alertchannel:
+    - alertchannel-sample

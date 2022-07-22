@@ -34,7 +34,7 @@ type GroupSpec struct {
 	// Activated determines if the created group is muted or not, default false
 	Activated bool `json:"muted,omitempty"`
 
-	// AlertChannel determines where to send alerts
+	// AlertChannels determines where to send alerts
 	AlertChannels []string `json:"alertchannel,omitempty"`
 }
 

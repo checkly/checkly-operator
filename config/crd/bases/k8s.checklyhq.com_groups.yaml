@@ -36,7 +36,7 @@ spec:
             description: GroupSpec defines the desired state of Group
             properties:
               alertchannel:
-                description: AlertChannel determines where to send alerts
+                description: AlertChannels determines where to send alerts
                 items:
                   type: string
                 type: array

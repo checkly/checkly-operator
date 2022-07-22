@@ -5,6 +5,37 @@ metadata:
   creationTimestamp: null
   name: manager-role
 rules:
+- resources:
+  - secrets
+  verbs:
+  - get
+  - list
+- apiGroups:
+  - k8s.checklyhq.com
+  resources:
+  - alertchannels
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - k8s.checklyhq.com
+  resources:
+  - alertchannels/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - k8s.checklyhq.com
+  resources:
+  - alertchannels/status
+  verbs:
+  - get
+  - patch
+  - update
 - apiGroups:
   - k8s.checklyhq.com
   resources:

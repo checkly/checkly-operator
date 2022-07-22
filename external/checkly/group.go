@@ -28,7 +28,7 @@ type Group struct {
 	ID            int64
 	Locations     []string
 	Activated     bool
-	AlertChannels []string
+	AlertChannels []checkly.AlertChannelSubscription
 	Labels        map[string]string
 }
 
@@ -66,7 +66,7 @@ func checklyGroup(group Group) (check checkly.Group) {
 		Tags:                      tags,
 		AlertSettings:             alertSettings,
 		UseGlobalAlertSettings:    false,
-		AlertChannelSubscriptions: []checkly.AlertChannelSubscription{},
+		AlertChannelSubscriptions: group.AlertChannels,
 	}
 
 	return
