@@ -19,6 +19,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/checkly/checkly-go-sdk"
 	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
@@ -54,16 +55,33 @@ var _ = Describe("ApiCheck Controller", func() {
 				Name: "test-group",
 			}
 
+			alertChannelKey := types.NamespacedName{
+				Name: "test-alertchannel",
+			}
+
 			group := &checklyv1alpha1.Group{
 				ObjectMeta: metav1.ObjectMeta{
 					Name: groupKey.Name,
 				},
 				Spec: checklyv1alpha1.GroupSpec{
-					Locations: []string{"eu-west-1"},
+					Locations:     []string{"eu-west-1"},
+					AlertChannels: []string{alertChannelKey.Name},
+				},
+			}
+
+			alertChannel := &checklyv1alpha1.AlertChannel{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: alertChannelKey.Name,
+				},
+				Spec: checklyv1alpha1.AlertChannelSpec{
+					Email: checkly.AlertChannelEmail{
+						Address: "foo@bar.baz",
+					},
 				},
 			}
 
 			// Create
+			Expect(k8sClient.Create(context.Background(), alertChannel)).Should(Succeed())
 			Expect(k8sClient.Create(context.Background(), group)).Should(Succeed())
 
 			By("Expecting submitted")
@@ -118,11 +136,19 @@ var _ = Describe("ApiCheck Controller", func() {
 				}
 			}, timeout, interval).Should(BeTrue())
 
-			// Delete
+			// Delete group
 			By("Expecting to delete successfully")
 			Eventually(func() error {
 				f := &checklyv1alpha1.Group{}
 				k8sClient.Get(context.Background(), groupKey, f)
+				return k8sClient.Delete(context.Background(), f)
+			}, timeout, interval).Should(Succeed())
+
+			// Delete alertchannel
+			By("Expecting to delete successfully")
+			Eventually(func() error {
+				f := &checklyv1alpha1.AlertChannel{}
+				k8sClient.Get(context.Background(), alertChannelKey, f)
 				return k8sClient.Delete(context.Background(), f)
 			}, timeout, interval).Should(Succeed())
 

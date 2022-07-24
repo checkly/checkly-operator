@@ -1,10 +1,10 @@
 # checkly-operator
 
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=checkly_checkly-operator&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=checkly_checkly-operator) [![Build and push](https://github.com/checkly/checkly-operator/actions/workflows/main-merge.yaml/badge.svg)](https://github.com/checkly/checkly-operator/actions/workflows/main-merge.yaml) [![Code Coverage](https://sonarcloud.io/api/project_badges/measure?project=checkly_checkly-operator&metric=coverage)](https://sonarcloud.io/summary/new_code?id=checkly_checkly-operator)
+[![Build and push](https://github.com/checkly/checkly-operator/actions/workflows/main-merge.yaml/badge.svg)](https://github.com/checkly/checkly-operator/actions/workflows/main-merge.yaml)
 
 A kubernetes operator for [checklyhq.com](https://checklyhq.com).
 
-The operator can create checklyhq.com checks and groups based of kubernetes CRDs and Ingress object annotations.
+The operator can create checklyhq.com checks, groups and alert channels based of kubernetes CRDs and Ingress object annotations.
 
 ## Development
 

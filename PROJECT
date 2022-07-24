@@ -32,4 +32,12 @@ resources:
   kind: Group
   path: github.com/checkly/checkly-operator/apis/checkly/v1alpha1
   version: v1alpha1
+- api:
+    crdVersion: v1
+  controller: true
+  domain: checklyhq.com
+  group: k8s
+  kind: AlertChannel
+  path: github.com/checkly/checkly-operator/apis/checkly/v1alpha1
+  version: v1alpha1
 version: "3"

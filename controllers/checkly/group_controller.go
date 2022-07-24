@@ -21,6 +21,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -111,12 +112,36 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		return ctrl.Result{}, nil
 	}
 
+	// /////////////////////////////
+	// AlertChannelsSubscription logic
+	// ////////////////////////////
+	var alertChannels []checkly.AlertChannelSubscription
+
+	if len(group.Spec.AlertChannels) != 0 {
+		for _, alertChannel := range group.Spec.AlertChannels {
+			ac := &checklyv1alpha1.AlertChannel{}
+			err := r.Get(ctx, types.NamespacedName{Name: alertChannel}, ac)
+			if err != nil {
+				logger.Info("Could not find alertChannel resource", "name", alertChannel)
+				return ctrl.Result{}, err
+			}
+			if ac.Status.ID == 0 {
+				logger.Info("AlertChannel ID not yet populated, we'll retry")
+				return ctrl.Result{Requeue: true}, nil
+			}
+			alertChannels = append(alertChannels, checkly.AlertChannelSubscription{
+				ChannelID: ac.Status.ID,
+				Activated: true,
+			})
+		}
+	}
+
 	// Create internal Check type
 	internalCheck := external.Group{
 		Name:          group.Name,
 		Activated:     group.Spec.Activated,
 		Locations:     group.Spec.Locations,
-		AlertChannels: group.Spec.AlertChannels,
+		AlertChannels: alertChannels,
 		ID:            group.Status.ID,
 		Labels:        group.Labels,
 	}

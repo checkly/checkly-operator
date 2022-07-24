@@ -143,6 +143,31 @@ var _ = BeforeSuite(func() {
 			}
 			return
 		})
+		http.HandleFunc("/v1/alert-channels", func(w http.ResponseWriter, _ *http.Request) {
+			w.WriteHeader(http.StatusCreated)
+			w.Header().Set("Content-Type", "application/json")
+			resp := make(map[string]interface{})
+			resp["id"] = 3
+			jsonResp, _ := json.Marshal(resp)
+			w.Write(jsonResp)
+			return
+		})
+		http.HandleFunc("/v1/alert-channels/3", func(w http.ResponseWriter, r *http.Request) {
+			r.ParseForm()
+			method := r.Method
+			switch method {
+			case "PUT":
+				w.WriteHeader(http.StatusOK)
+				w.Header().Set("Content-Type", "application/json")
+				resp := make(map[string]interface{})
+				resp["id"] = 3
+				jsonResp, _ := json.Marshal(resp)
+				w.Write(jsonResp)
+			case "DELETE":
+				w.WriteHeader(http.StatusNoContent)
+			}
+			return
+		})
 		http.ListenAndServe(":5555", nil)
 	}()
 
@@ -154,6 +179,13 @@ var _ = BeforeSuite(func() {
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&GroupReconciler{
+		Client:    k8sManager.GetClient(),
+		Scheme:    k8sManager.GetScheme(),
+		ApiClient: testClient,
+	}).SetupWithManager(k8sManager)
+	Expect(err).ToNot(HaveOccurred())
+
+	err = (&AlertChannelReconciler{
 		Client:    k8sManager.GetClient(),
 		Scheme:    k8sManager.GetScheme(),
 		ApiClient: testClient,

@@ -33,6 +33,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	"github.com/checkly/checkly-go-sdk"
+
 	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
 	checklycontrollers "github.com/checkly/checkly-operator/controllers/checkly"
 	networkingcontrollers "github.com/checkly/checkly-operator/controllers/networking"
@@ -124,6 +125,14 @@ func main() {
 		ApiClient: client,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Group")
+		os.Exit(1)
+	}
+	if err = (&checklycontrollers.AlertChannelReconciler{
+		Client:    mgr.GetClient(),
+		Scheme:    mgr.GetScheme(),
+		ApiClient: client,
+	}).SetupWithManager(mgr); err != nil {
+		setupLog.Error(err, "unable to create controller", "controller", "AlertChannel")
 		os.Exit(1)
 	}
 	//+kubebuilder:scaffold:builder
