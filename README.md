@@ -40,7 +40,7 @@ We support reading configuration from ingress resources, take a look at the [sam
 
 We're using the following versions of packages:
 * operator-sdk 1.22.2
-* golang 1.18
+* golang 1.19
 
 ### direnv
 
