@@ -92,6 +92,8 @@ github.com/cespare/xxhash/v2 v2.1.2 h1:YRXhKfTDauu4ajMg1TPgFO5jnlC2HCbmLXMcTG5cb
 github.com/cespare/xxhash/v2 v2.1.2/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/checkly/checkly-go-sdk v1.5.7 h1:EbXM9etOWQ8Wu3iN93qXsQKI4fyIUI94PdSfonRcjQo=
 github.com/checkly/checkly-go-sdk v1.5.7/go.mod h1:wkAoXD2cVCNQEXi9lHZqy/zONIAZc5D9frih6Gas3Rs=
+github.com/checkly/checkly-go-sdk v1.6.1 h1:R504wAr5hjqYCnEiU25UOW9v5l7N9cMF6izbmg36uA4=
+github.com/checkly/checkly-go-sdk v1.6.1/go.mod h1:a1I5B287Fd06TL1C+V/9szb3ZU4+0Di100Zn8h+CDgg=
 github.com/chzyer/logex v1.1.10/go.mod h1:+Ywpsq7O8HXn0nuIou7OrIPyXbp3wmkHB+jjWRnGsAI=
 github.com/chzyer/readline v0.0.0-20180603132655-2972be24d48e/go.mod h1:nSuG5e5PlCu98SY8svDHJxuZscDgtXS6KTTbou5AhLI=
 github.com/chzyer/test v0.0.0-20180213035817-a1ea475d72b1/go.mod h1:Q3SI9o4m/ZMnBNeIyt5eFwwo7qiLfzFZmjNmxjkiQlU=
