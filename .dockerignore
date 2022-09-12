@@ -3,6 +3,7 @@
 bin/
 testbin/
 hack/
+docs/
 
 # direnv
 .envrc
