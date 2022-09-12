@@ -30,7 +30,7 @@ In order for the operator to work, you need to supply secrets which hold your [c
               name: checkly
 ```
 
-The following steps are an easy example on how to get started with the operator, it is not a production ready method, ex. we're not using any secrets managers, you should not create secrets and commit them to git like in the bellow example, we're only deploying one replica, while the operator does support HA deployments.
+The following steps are an easy example on how to get started with the operator, it is not a production ready method, for example we're not using any secrets managers, you should not create secrets and commit them to git like in the below example, we're only deploying one replica, while the operator does support HA deployments.
 
 If you just want to try out the checkly-operator, you need a local kubernetes installation, the easiest might be [Rancher Desktop](https://rancherdesktop.io/), see [the docs](https://docs.rancherdesktop.io/getting-started/installation/) for the installation, once done, come back to this doc.
 
@@ -55,7 +55,7 @@ kubectl apply -f install.yaml
 
 ### Create secret
 
-Grab your [checklyhq.com](checklyhq.com) API key and Account ID, [the official docs](https://www.checklyhq.com/docs/integrations/pulumi/#define-your-checkly-account-id-and-api-key) can help you get this information. Substitute the values into the bellow command:
+Grab your [checklyhq.com](checklyhq.com) API key and Account ID, [the official docs](https://www.checklyhq.com/docs/integrations/pulumi/#define-your-checkly-account-id-and-api-key) can help you get this information. Substitute the values into the below command:
 
 ```bash
 export CHECKLY_API_KEY=<api-key-from-checklyhq.com>
@@ -86,7 +86,7 @@ Based on the above, the order of creation should be:
 
 Reference to resources are done based on the kubernetes internal naming, as in the `metadata.name` field.
 
-Please look at the bellow examples and change the supplied data so it fits your needs the best. Save the example into individual files and apply them when ready:
+Please look at the below examples and change the supplied data so it fits your needs the best. Save the example into individual files and apply them when ready:
 ```bash
 kubectl apply -f <name-of-the-file>.yaml
 ```
@@ -106,7 +106,7 @@ spec:
     address: "foo@bar.baz"
 ```
 
-The `AlertChannel` resource is clustered scoped, it can be used in any check group but it also means that the name of the resource has to be unique in the kubernetes cluster.
+The `AlertChannel` resource is cluster scoped, it can be used in any check group but it also means that the name of the resource has to be unique in the kubernetes cluster.
 
 Once applied you can check if it worked:
 ```bash
@@ -135,7 +135,7 @@ spec:
     - checkly-operator-test-alertchannel
 ```
 
-The `Group` resource is clustered scoped, it can be used in any api check but it also means that the name of the resource has to be unique in the kubernetes cluster.
+The `Group` resource is cluster scoped, it can be used in any api check but it also means that the name of the resource has to be unique in the kubernetes cluster.
 
 Once applied you can check if it worked:
 ```bash

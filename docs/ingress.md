@@ -14,8 +14,8 @@ The name of the API Check derives from the `metadata.name` of the `ingress` reso
 | Annotation         | Details     | Default |
 |--------------------|-------------|---------|
 | `k8s.checklyhq.com/enabled` | Bool; Should the operator read the annotations or not | `false` (*required) |
-| `k8s.checklyhq.com/path` | String; The URI to put after the `endpoint`, ex. `/path` | "" (*required) |
-| `k8s.checklyhq.com/endpoint` | String; The host of the URL, ex. `/` | Value of `spec.rules[0].Host`, defaults to `https://` (*required) |
+| `k8s.checklyhq.com/path` | String; The URI to put after the `endpoint`, for example `/path` | "" (*required) |
+| `k8s.checklyhq.com/endpoint` | String; The host of the URL, for example `/` | Value of `spec.rules[0].Host`, defaults to `https://` (*required) |
 | `k8s.checklyhq.com/group` | String; Name of the group to which the check belongs; Kubernetes `Group` resource name` | none (*required)|
 | `k8s.checklyhq.com/muted` | String; Is the check muted or not | `true` |
 | `k8s.checklyhq.com/success` | String; The expected success code | `200` |

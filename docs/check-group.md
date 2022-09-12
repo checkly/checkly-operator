@@ -10,7 +10,7 @@ The name of the group is derived from the `metadata.name` of the kubernetes reso
 
 ### Labels
 
-Any `metadata.labels` specified will be transformed into tags, ex. `environment: dev` label will be transformed to `environment:dev` tag, these tags then propagate to Prometheus metrics (if you're using [the checkly prometheus endpoint](https://www.checklyhq.com/docs/integrations/prometheus/)).
+Any `metadata.labels` specified will be transformed into tags, for example `environment: dev` label will be transformed to `environment:dev` tag, these tags then propagate to Prometheus metrics (if you're using [the checkly prometheus endpoint](https://www.checklyhq.com/docs/integrations/prometheus/)).
 
 ### Spec
 

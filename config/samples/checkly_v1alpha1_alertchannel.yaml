@@ -3,7 +3,7 @@ kind: AlertChannel
 metadata:
   name: alertchannel-sample
 spec:
-# only one of the bellow can be specified at once, either email or opsgenie
+# only one of the below can be specified at once, either email or opsgenie
   email:
     address: "foo@bar.baz"
   # opsgenie:

@@ -15,7 +15,7 @@ The name of the API check derives from the `metadata.name` of the created kubern
 
 ### Labels
 
-Any `metadata.labels` specified will be transformed into tags, ex. `environment: dev` label will be transformed to `environment:dev` tag, these tags then propagate to Prometheus metrics (if you're using [the checkly prometheus endpoint](https://www.checklyhq.com/docs/integrations/prometheus/)).
+Any `metadata.labels` specified will be transformed into tags, for example `environment: dev` label will be transformed to `environment:dev` tag, these tags then propagate to Prometheus metrics (if you're using [the checkly prometheus endpoint](https://www.checklyhq.com/docs/integrations/prometheus/)).
 
 > ***Note***
 > Labels from `Group` resources are automatically propagated to the API checks which are added to the check group, you don't need to duplicate the labels.
