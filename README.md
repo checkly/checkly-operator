@@ -61,6 +61,6 @@ Sources used for kick starting this project:
 ### Versions
 
 We're using the following versions of packages:
-* operator-sdk 1.22.2
+* operator-sdk 1.25.0
 * golang 1.19
 
