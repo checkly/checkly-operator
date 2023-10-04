@@ -1,7 +1,7 @@
 name: Build and test Go
 on:
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -10,7 +10,6 @@ env:
   GO_MODULES: on
 
 jobs:
-
   golang:
     name: Golang build
     runs-on: ubuntu-latest
@@ -19,9 +18,9 @@ jobs:
         uses: actions/checkout@v1
 
       - name: Set up Go
-        uses: actions/setup-go@v1
+        uses: actions/setup-go@v4
         with:
-          go-version: 1.19
+          go-version-file: "go.mod"
 
       # We need kind to test the code
       - name: Start kind cluster
@@ -43,9 +42,9 @@ jobs:
       #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       #     GO_MODULES: "on"
 
-# Docker buildx does not allow for multi architecture builds and loading the docker container locally, 
-# this way we can not run trivy against the containers, one solution is to run multiple jobs for each arch
-# ARM builds are really slow, we're only doing it in the `main-merge` workflow.
+  # Docker buildx does not allow for multi architecture builds and loading the docker container locally,
+  # this way we can not run trivy against the containers, one solution is to run multiple jobs for each arch
+  # ARM builds are really slow, we're only doing it in the `main-merge` workflow.
   docker:
     name: Docker build
     runs-on: ubuntu-latest
@@ -98,6 +97,5 @@ jobs:
           IMAGE: ${{ steps.docker_meta.outputs.tags }}
         with:
           image-ref: ${{ env.IMAGE }}
-          format: 'table'
-          exit-code: '1'
-
+          format: "table"
+          exit-code: "1"
