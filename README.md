@@ -28,6 +28,7 @@ Make sure your current kubectl context is set to the appropriate kubernetes clus
 ```bash
 kubectl apply -f config/crd/bases/k8s.checklyhq.com_apichecks.yaml
 kubectl apply -f config/crd/bases/k8s.checklyhq.com_groups.yaml
+kubectl apply -f config/crd/bases/k8s.checklyhq.com_alertchannels.yaml
 make run
 ```
 
@@ -61,6 +62,6 @@ Sources used for kick starting this project:
 ### Versions
 
 We're using the following versions of packages:
-* operator-sdk 1.25.0
-* golang 1.19
+* operator-sdk 1.31.0
+* golang 1.21
 

@@ -31,12 +31,13 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/healthz"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
+	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
 
 	"github.com/checkly/checkly-go-sdk"
 
 	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
-	checklycontrollers "github.com/checkly/checkly-operator/controllers/checkly"
-	networkingcontrollers "github.com/checkly/checkly-operator/controllers/networking"
+	checklycontrollers "github.com/checkly/checkly-operator/internal/controller/checkly"
+	networkingcontrollers "github.com/checkly/checkly-operator/internal/controller/networking"
 	//+kubebuilder:scaffold:imports
 )
 
@@ -70,9 +71,10 @@ func main() {
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
-		Scheme:                 scheme,
-		MetricsBindAddress:     metricsAddr,
-		Port:                   9443,
+		Scheme: scheme,
+		Metrics: metricsserver.Options{
+			BindAddress: metricsAddr,
+		},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
 		LeaderElectionID:       "4e7eab13.checklyhq.com",
