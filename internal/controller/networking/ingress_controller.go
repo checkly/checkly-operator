@@ -20,7 +20,7 @@ import (
 	"context"
 	"fmt"
 
-	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
+	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
 	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
