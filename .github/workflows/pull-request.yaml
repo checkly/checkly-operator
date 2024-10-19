@@ -24,9 +24,9 @@ jobs:
 
       # We need kind to test the code
       - name: Start kind cluster
-        uses: helm/kind-action@v1.2.0
+        uses: helm/kind-action@v1
         with:
-          version: "v0.12.0"
+          version: "v0.22.0" # This starts k8s v1.29
 
       - name: Test code
         env:
