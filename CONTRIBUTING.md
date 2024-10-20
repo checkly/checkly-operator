@@ -26,22 +26,19 @@ Here’s the basic format:
 
 - `<type>(<scope>): <description>`
   
-  - **Type**: What kind of change you’re making, like:
-    - `feat`: Adding a new feature.
-    - `fix`: Fixing a bug.
+  - **Type**: What kind of change you’re making. Common examples:
+    - `feat`: Introducing a new feature to the codebase.
+    - `fix`: Patching a bug in the codebase.
     - `docs`: Updating documentation.
-    - `style`: Code style changes (e.g., formatting).
-    - `refactor`: Changing code without affecting how it works.
-    - `test`: Adding or updating tests.
-    - `chore`: Routine tasks (e.g., updating dependencies).
+    - ...
       
   - **Scope**: Where the change happens (e.g., `operator`, `readme`).
     
   - **Description**: A short summary of the change.
 
-Some examples:
+Examples:
 - `docs(readme): Add commit message guidelines`
-- `fix(operator): Fix timeout issue in deployment`
+- `build(deps): bump golang.org/x/net from 0.13.0 to 0.23.0`
 
 For more info, check out the [Conventional Commits guide](https://www.conventionalcommits.org/en/v1.0.0/).
 
