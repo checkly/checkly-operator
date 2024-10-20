@@ -9,6 +9,10 @@ The operator can create checklyhq.com checks, groups and alert channels based of
 ## Documentation
 Please see our [docs](docs/README.md) for more details on how to install and use the operator.
 
+## Get in touch
+
+You can reach us anytime on **#checkly-k8s-operator** channel in the [Checkly community Slack](https://www.checklyhq.com/slack).
+
 ## Development
 ### direnv
 
@@ -58,10 +62,11 @@ Sources used for kick starting this project:
 * https://sdk.operatorframework.io/docs/building-operators/golang/advanced-topics/#external-resources
 * https://book.kubebuilder.io/cronjob-tutorial/writing-tests.html
 
-
 ### Versions
 
 We're using the following versions of packages:
 * operator-sdk 1.31.0
 * golang 1.21
+
+
 
