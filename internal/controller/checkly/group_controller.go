@@ -28,7 +28,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	"github.com/checkly/checkly-go-sdk"
-	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
+	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
 	external "github.com/checkly/checkly-operator/external/checkly"
 )
 
