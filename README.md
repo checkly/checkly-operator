@@ -9,9 +9,9 @@ The operator can create checklyhq.com checks, groups and alert channels based of
 ## Documentation
 Please see our [docs](docs/README.md) for more details on how to install and use the operator.
 
-## Get in touch
+## Get involved
 
-You can reach us anytime on **#checkly-k8s-operator** channel in the [Checkly community Slack](https://www.checklyhq.com/slack).
+Join us anytime on the **#checkly-k8s-operator** channel in the [Checkly community Slack](https://www.checklyhq.com/slack), where we're discussing everything related to the project. If you're interested in contributing, be sure to check out [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## Development
 ### direnv
