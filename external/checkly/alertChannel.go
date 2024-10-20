@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/checkly/checkly-go-sdk"
-	checklyv1alpha1 "github.com/checkly/checkly-operator/apis/checkly/v1alpha1"
+	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
 )
 
 func checklyAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConfig checkly.AlertChannelOpsgenie) (ac checkly.AlertChannel, err error) {
