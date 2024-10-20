@@ -32,7 +32,7 @@ Here’s the basic format:
     - `docs`: Updating documentation.
     - ...
       
-  - **Scope**: Where the change happens (e.g., `operator`, `readme`).
+  - **Scope**: Where the change happens (e.g., `deps`, `readme`).
     
   - **Description**: A short summary of the change.
 
