@@ -11,7 +11,7 @@ Please see our [docs](docs/README.md) for more details on how to install and use
 
 ## Get involved
 
-Join us anytime on the **#checkly-k8s-operator** channel in the [Checkly community Slack](https://www.checklyhq.com/slack), where we're discussing everything related to the project. If you're interested in contributing, be sure to check out [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
+Join us on the **#checkly-k8s-operator** channel in the [Checkly community Slack](https://www.checklyhq.com/slack), where we're discussing everything related to the project. If you're interested in contributing, be sure to check out [CONTRIBUTING.md](CONTRIBUTING.md) for more details.
 
 ## Development
 ### direnv
