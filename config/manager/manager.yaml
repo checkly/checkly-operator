@@ -32,6 +32,7 @@ spec:
         - /manager
         args:
         - --leader-elect
+        - --controller-domain=k8s.checklyhq.com
         image: controller:latest
         name: manager
         env:

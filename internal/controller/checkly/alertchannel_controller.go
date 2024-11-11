@@ -18,6 +18,7 @@ package checkly
 
 import (
 	"context"
+	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -36,8 +37,9 @@ import (
 // AlertChannelReconciler reconciles a AlertChannel object
 type AlertChannelReconciler struct {
 	client.Client
-	Scheme    *runtime.Scheme
-	ApiClient checkly.Client
+	Scheme           *runtime.Scheme
+	ApiClient        checkly.Client
+	ControllerDomain string
 }
 
 //+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=alertchannels,verbs=get;list;watch;create;update;patch;delete
@@ -55,7 +57,7 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	logger.Info("Reconciler started")
 
-	acFinalizer := "k8s.checklyhq.com/finalizer"
+	acFinalizer := fmt.Sprintf("%s/finalizer", r.ControllerDomain)
 
 	ac := &checklyv1alpha1.AlertChannel{}
 

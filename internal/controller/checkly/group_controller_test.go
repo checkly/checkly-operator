@@ -111,11 +111,15 @@ var _ = Describe("ApiCheck Controller", func() {
 			Eventually(func() bool {
 				f := &checklyv1alpha1.Group{}
 				err := k8sClient.Get(context.Background(), groupKey, f)
-				if len(f.Finalizers) == 1 && err == nil {
-					return true
-				} else {
+				if err != nil {
 					return false
 				}
+
+				for _, finalizer := range f.Finalizers {
+					Expect(finalizer).To(Equal("testing.domain.tld/finalizer"), "Finalizer should match")
+				}
+
+				return true
 			}, timeout, interval).Should(BeTrue())
 
 			// Update
