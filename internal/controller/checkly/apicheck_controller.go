@@ -18,6 +18,7 @@ package checkly
 
 import (
 	"context"
+	"fmt"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,8 +36,9 @@ import (
 // ApiCheckReconciler reconciles a ApiCheck object
 type ApiCheckReconciler struct {
 	client.Client
-	Scheme    *runtime.Scheme
-	ApiClient checkly.Client
+	Scheme           *runtime.Scheme
+	ApiClient        checkly.Client
+	ControllerDomain string
 }
 
 //+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=apichecks,verbs=get;list;watch;create;update;patch;delete
@@ -56,7 +58,7 @@ type ApiCheckReconciler struct {
 func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	apiCheckFinalizer := "k8s.checklyhq.com/finalizer"
+	apiCheckFinalizer := fmt.Sprintf("%s/finalizer", r.ControllerDomain)
 
 	apiCheck := &checklyv1alpha1.ApiCheck{}
 

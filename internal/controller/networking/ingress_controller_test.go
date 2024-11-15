@@ -45,10 +45,10 @@ var _ = Describe("Ingress Controller", func() {
 			}
 
 			annotation := make(map[string]string)
-			annotation["k8s.checklyhq.com/enabled"] = "true"
-			annotation["k8s.checklyhq.com/path"] = testPath
-			annotation["k8s.checklyhq.com/success"] = testSuccessCode
-			annotation["k8s.checklyhq.com/group"] = testGroup
+			annotation["testing.domain.tld/enabled"] = "true"
+			annotation["testing.domain.tld/path"] = testPath
+			annotation["testing.domain.tld/success"] = testSuccessCode
+			annotation["testing.domain.tld/group"] = testGroup
 
 			rules := make([]networkingv1.IngressRule, 0)
 			rules = append(rules, networkingv1.IngressRule{
@@ -116,10 +116,10 @@ var _ = Describe("Ingress Controller", func() {
 			// Update
 			updatePath := "baaz"
 			updateHost := "foo.update"
-			annotation["k8s.checklyhq.com/path"] = updatePath
-			annotation["k8s.checklyhq.com/endpoint"] = updateHost
-			annotation["k8s.checklyhq.com/success"] = ""
-			annotation["k8s.checklyhq.com/muted"] = "false"
+			annotation["testing.domain.tld/path"] = updatePath
+			annotation["testing.domain.tld/endpoint"] = updateHost
+			annotation["testing.domain.tld/success"] = ""
+			annotation["testing.domain.tld/muted"] = "false"
 			ingress = &networkingv1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:        key.Name,
@@ -164,7 +164,7 @@ var _ = Describe("Ingress Controller", func() {
 			}, timeout, interval).Should(BeTrue())
 
 			// Remove enabled label
-			annotation["k8s.checklyhq.com/enabled"] = "false"
+			annotation["testing.domain.tld/enabled"] = "false"
 			ingress = &networkingv1.Ingress{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:        key.Name,
@@ -221,10 +221,10 @@ var _ = Describe("Ingress Controller", func() {
 			}
 
 			annotation := make(map[string]string)
-			annotation["k8s.checklyhq.com/enabled"] = "false"
-			annotation["k8s.checklyhq.com/path"] = testPath
-			annotation["k8s.checklyhq.com/success"] = testSuccessCode
-			annotation["k8s.checklyhq.com/muted"] = "false"
+			annotation["testing.domain.tld/enabled"] = "false"
+			annotation["testing.domain.tld/path"] = testPath
+			annotation["testing.domain.tld/success"] = testSuccessCode
+			annotation["testing.domain.tld/muted"] = "false"
 
 			rules := make([]networkingv1.IngressRule, 0)
 			rules = append(rules, networkingv1.IngressRule{
@@ -255,7 +255,7 @@ var _ = Describe("Ingress Controller", func() {
 
 			updated := &networkingv1.Ingress{}
 			Expect(k8sClient.Get(context.Background(), key, updated)).Should(Succeed())
-			annotation["k8s.checklyhq.com/enabled"] = "true"
+			annotation["testing.domain.tld/enabled"] = "true"
 			updated.Annotations = annotation
 			Expect(k8sClient.Update(context.Background(), updated)).Should(Succeed())
 

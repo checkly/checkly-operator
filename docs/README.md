@@ -39,7 +39,7 @@ If you just want to try out the checkly-operator, you need a local kubernetes in
 First we'll download the provided `install.yaml` files, please change the version number accordingly, we might have newer [releases](https://github.com/checkly/checkly-operator/releases) since we've written these docs.
 
 ```bash
-export CHECKLY_OPERATOR_RELEASE=v1.4.1
+export CHECKLY_OPERATOR_RELEASE=v1.7.0
 wget "https://github.com/checkly/checkly-operator/releases/download/$CHECKLY_OPERATOR_RELEASE/install-$CHECKLY_OPERATOR_RELEASE.yaml" -O install.yaml
 unset CHECKLY_OPERATOR_RELEASE
 ```
@@ -52,6 +52,12 @@ You can apply the `install.yaml`, this will create the namespace, we need this t
 ```bash
 kubectl apply -f install.yaml
 ```
+
+#### Controller Domain
+
+We're using a domain name for finalizers and annotations, the default value is `k8s.checklyhq.com`, but it can be changed by supplying the `--controller-domain=other.domain.tld` runtime option.
+
+This option allows you to run multiple independent deployments of the operator and each would handle different resources based on the controller domain configuration.
 
 ### Create secret
 

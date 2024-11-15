@@ -57,11 +57,13 @@ func main() {
 	var metricsAddr string
 	var enableLeaderElection bool
 	var probeAddr string
+	var controllerDomain string
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
 		"Enable leader election for controller manager. "+
 			"Enabling this will ensure there is only one active controller manager.")
+	flag.StringVar(&controllerDomain, "controller-domain", "k8s.checklyhq.com", "Domain to use for annotations and finalizers.")
 	opts := zap.Options{
 		Development: true,
 	}
@@ -69,6 +71,8 @@ func main() {
 	flag.Parse()
 
 	ctrl.SetLogger(zap.New(zap.UseFlagOptions(&opts)))
+
+	setupLog.Info("Controller domain setup", "value", controllerDomain)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{
 		Scheme: scheme,
@@ -107,32 +111,36 @@ func main() {
 	client.SetAccountId(accountId)
 
 	if err = (&networkingcontrollers.IngressReconciler{
-		Client: mgr.GetClient(),
-		Scheme: mgr.GetScheme(),
+		Client:           mgr.GetClient(),
+		Scheme:           mgr.GetScheme(),
+		ControllerDomain: controllerDomain,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Ingress")
 		os.Exit(1)
 	}
 	if err = (&checklycontrollers.ApiCheckReconciler{
-		Client:    mgr.GetClient(),
-		Scheme:    mgr.GetScheme(),
-		ApiClient: client,
+		Client:           mgr.GetClient(),
+		Scheme:           mgr.GetScheme(),
+		ApiClient:        client,
+		ControllerDomain: controllerDomain,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "ApiCheck")
 		os.Exit(1)
 	}
 	if err = (&checklycontrollers.GroupReconciler{
-		Client:    mgr.GetClient(),
-		Scheme:    mgr.GetScheme(),
-		ApiClient: client,
+		Client:           mgr.GetClient(),
+		Scheme:           mgr.GetScheme(),
+		ApiClient:        client,
+		ControllerDomain: controllerDomain,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "Group")
 		os.Exit(1)
 	}
 	if err = (&checklycontrollers.AlertChannelReconciler{
-		Client:    mgr.GetClient(),
-		Scheme:    mgr.GetScheme(),
-		ApiClient: client,
+		Client:           mgr.GetClient(),
+		Scheme:           mgr.GetScheme(),
+		ApiClient:        client,
+		ControllerDomain: controllerDomain,
 	}).SetupWithManager(mgr); err != nil {
 		setupLog.Error(err, "unable to create controller", "controller", "AlertChannel")
 		os.Exit(1)

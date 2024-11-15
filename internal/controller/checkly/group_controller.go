@@ -18,6 +18,7 @@ package checkly
 
 import (
 	"context"
+	"fmt"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -35,8 +36,9 @@ import (
 // GroupReconciler reconciles a Group object
 type GroupReconciler struct {
 	client.Client
-	Scheme    *runtime.Scheme
-	ApiClient checkly.Client
+	Scheme           *runtime.Scheme
+	ApiClient        checkly.Client
+	ControllerDomain string
 }
 
 //+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=groups,verbs=get;list;watch;create;update;patch;delete
@@ -53,7 +55,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	logger.Info("Reconciler started")
 
-	groupFinalizer := "k8s.checklyhq.com/finalizer"
+	groupFinalizer := fmt.Sprintf("%s/finalizer", r.ControllerDomain)
 
 	group := &checklyv1alpha1.Group{}
 

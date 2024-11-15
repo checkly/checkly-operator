@@ -33,7 +33,8 @@ import (
 // IngressReconciler reconciles a Ingress object
 type IngressReconciler struct {
 	client.Client
-	Scheme *runtime.Scheme
+	Scheme           *runtime.Scheme
+	ControllerDomain string
 }
 
 //+kubebuilder:rbac:groups=networking.k8s.io,resources=ingresses,verbs=get;list;watch;update;patch
@@ -54,6 +55,8 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	ingress := &networkingv1.Ingress{}
 	apiCheck := &checklyv1alpha1.ApiCheck{}
 
+	annotationEnabled := fmt.Sprintf("%s/enabled", r.ControllerDomain)
+
 	// Check if ingress object is still present
 	err := r.Get(ctx, req.NamespacedName, ingress)
 	if err != nil {
@@ -67,7 +70,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	logger.Info("Ingress Object found")
 
 	// Check if annotation is present on the object
-	checklyAnnotation := ingress.Annotations["k8s.checklyhq.com/enabled"] == "true"
+	checklyAnnotation := ingress.Annotations[annotationEnabled] == "true"
 	if !checklyAnnotation {
 		// Annotation may have been removed or updated, we have to determine if we need to delete a previously created ApiCheck resource
 		logger.Info("annotation is not present, checking if ApiCheck was created")
@@ -138,7 +141,7 @@ func (r *IngressReconciler) SetupWithManager(mgr ctrl.Manager) error {
 
 func (r *IngressReconciler) gatherApiCheckData(ingress *networkingv1.Ingress) (apiCheckSpec checklyv1alpha1.ApiCheckSpec, err error) {
 
-	annotationHost := "k8s.checklyhq.com"
+	annotationHost := r.ControllerDomain
 	annotationPath := fmt.Sprintf("%s/path", annotationHost)
 	annotationEndpoint := fmt.Sprintf("%s/endpoint", annotationHost)
 	annotationSuccess := fmt.Sprintf("%s/success", annotationHost)

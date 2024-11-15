@@ -168,24 +168,29 @@ var _ = BeforeSuite(func() {
 		http.ListenAndServe(":5555", nil)
 	}()
 
+	testControllerDomain := "testing.domain.tld"
+
 	err = (&ApiCheckReconciler{
-		Client:    k8sManager.GetClient(),
-		Scheme:    k8sManager.GetScheme(),
-		ApiClient: testClient,
+		Client:           k8sManager.GetClient(),
+		Scheme:           k8sManager.GetScheme(),
+		ApiClient:        testClient,
+		ControllerDomain: testControllerDomain,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&GroupReconciler{
-		Client:    k8sManager.GetClient(),
-		Scheme:    k8sManager.GetScheme(),
-		ApiClient: testClient,
+		Client:           k8sManager.GetClient(),
+		Scheme:           k8sManager.GetScheme(),
+		ApiClient:        testClient,
+		ControllerDomain: testControllerDomain,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
 	err = (&AlertChannelReconciler{
-		Client:    k8sManager.GetClient(),
-		Scheme:    k8sManager.GetScheme(),
-		ApiClient: testClient,
+		Client:           k8sManager.GetClient(),
+		Scheme:           k8sManager.GetScheme(),
+		ApiClient:        testClient,
+		ControllerDomain: testControllerDomain,
 	}).SetupWithManager(k8sManager)
 	Expect(err).ToNot(HaveOccurred())
 
