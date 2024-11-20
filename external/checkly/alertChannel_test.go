@@ -27,8 +27,9 @@ func TestChecklyAlertChannel(t *testing.T) {
 	}
 
 	opsGenieConfigEmpty := checkly.AlertChannelOpsgenie{}
+	webhookConfigEmpty := checkly.AlertChannelWebhook{}
 
-	returned, err := checklyAlertChannel(&dataEmpty, opsGenieConfigEmpty)
+	returned, err := checklyAlertChannel(&dataEmpty, opsGenieConfigEmpty, webhookConfigEmpty)
 	if err != nil {
 		t.Errorf("Expected no error, got %e", err)
 	}
@@ -42,7 +43,7 @@ func TestChecklyAlertChannel(t *testing.T) {
 		Address: acEmailAddress,
 	}
 
-	returned, err = checklyAlertChannel(&dataEmail, opsGenieConfigEmpty)
+	returned, err = checklyAlertChannel(&dataEmail, opsGenieConfigEmpty, webhookConfigEmpty)
 	if err != nil {
 		t.Errorf("Expected no error, got %e", err)
 	}
@@ -58,7 +59,7 @@ func TestChecklyAlertChannel(t *testing.T) {
 		Name:     "baz",
 	}
 
-	returned, err = checklyAlertChannel(&dataEmpty, dataOpsGenieFull)
+	returned, err = checklyAlertChannel(&dataEmpty, dataOpsGenieFull, webhookConfigEmpty)
 	if err != nil {
 		t.Errorf("Expected no error, got %e", err)
 	}
@@ -73,6 +74,42 @@ func TestChecklyAlertChannel(t *testing.T) {
 
 	if returned.Opsgenie.Region != "US" {
 		t.Errorf("Expected %s, got %s", "US", returned.Opsgenie.Region)
+	}
+
+	if returned.Email != nil {
+		t.Errorf("Expected nil, got %s", returned.Email)
+	}
+
+	if returned.Webhook != nil { // Can't test against nil because []KeyValue pairs are present
+		t.Errorf("Expected nil, got %v+", returned.Webhook)
+	}
+
+	dataWebhookFull := checkly.AlertChannelWebhook{
+		Name:            "test",
+		URL:             "http://foo.bar",
+		WebhookType:     "GET",
+		Method:          "POST",
+		Template:        "",
+		WebhookSecret:   "foobar",
+		Headers:         []checkly.KeyValue{},
+		QueryParameters: []checkly.KeyValue{},
+	}
+
+	returned, err = checklyAlertChannel(&dataEmpty, opsGenieConfigEmpty, dataWebhookFull)
+	if err != nil {
+		t.Errorf("Expected error, got %e", err)
+	}
+
+	if returned.Webhook == nil {
+		t.Errorf("Expected Webhook field to be populated, it's empty")
+	}
+
+	if returned.Webhook.Method != "POST" {
+		t.Errorf("Expected %s, got %s", "POST", returned.Webhook.Method)
+	}
+
+	if returned.Opsgenie != nil {
+		t.Errorf("Expected nil, got %s", returned.Opsgenie)
 	}
 
 	if returned.Email != nil {
@@ -101,6 +138,7 @@ func TestAlertChannelActions(t *testing.T) {
 	}
 
 	opsGenieConfigEmpty := checkly.AlertChannelOpsgenie{}
+	webhookConfigEmpty := checkly.AlertChannelWebhook{}
 
 	// Test errors
 	testClient := checkly.NewClient(
@@ -112,13 +150,13 @@ func TestAlertChannelActions(t *testing.T) {
 	testClient.SetAccountId("1234567890")
 
 	// Create fail
-	_, err := CreateAlertChannel(testData, opsGenieConfigEmpty, testClient)
+	_, err := CreateAlertChannel(testData, opsGenieConfigEmpty, webhookConfigEmpty, testClient)
 	if err == nil {
 		t.Error("Expected error, got none")
 	}
 
 	// Update fail
-	err = UpdateAlertChannel(testData, opsGenieConfigEmpty, testClient)
+	err = UpdateAlertChannel(testData, opsGenieConfigEmpty, webhookConfigEmpty, testClient)
 	if err == nil {
 		t.Error("Expected error, got none")
 	}
@@ -159,7 +197,7 @@ func TestAlertChannelActions(t *testing.T) {
 	}()
 
 	// Create success
-	testID, err := CreateAlertChannel(testData, opsGenieConfigEmpty, testClient)
+	testID, err := CreateAlertChannel(testData, opsGenieConfigEmpty, webhookConfigEmpty, testClient)
 	if err != nil {
 		t.Errorf("Expected no error, got %e", err)
 	}
@@ -168,7 +206,7 @@ func TestAlertChannelActions(t *testing.T) {
 	}
 
 	// Update success
-	err = UpdateAlertChannel(testData, opsGenieConfigEmpty, testClient)
+	err = UpdateAlertChannel(testData, opsGenieConfigEmpty, webhookConfigEmpty, testClient)
 	if err != nil {
 		t.Errorf("Expected no error, got %e", err)
 	}

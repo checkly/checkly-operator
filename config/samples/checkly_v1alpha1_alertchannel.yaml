@@ -3,6 +3,11 @@ kind: AlertChannel
 metadata:
   name: alertchannel-sample
 spec:
+  sendRecovery: false
+  sendFailure: true
+  sendDegraded: true
+  sslExpiry: true
+  sslExpiryThreshold: 30
 # only one of the below can be specified at once, either email or opsgenie
   email:
     address: "foo@bar.baz"
@@ -13,3 +18,24 @@ spec:
   #     fieldPath: "TEST" # Key inside the secret
   #    priority: "P3"
   #    region: "US"
+  # sslExpiry: true
+  # sendDegraded: true
+  # sslExpiryThreshold: 15
+  # webhook:
+  #   name: foo # Name of the webhook
+  #   url: https://foo.bar # URL of the webhook
+    # webhookType : baz # Type of webhook
+    # method: POST # Method of webhook
+    # template: testing # Checkly webhook template
+    # webhookSecret:
+    #   name: test-secret # Name of the secret or configmap which holds the webhook secret
+    #   namespace: default # Namespace of the secret or configmap
+    #   fieldPath: "SECRET_KEY" # Key inside the secret or configmap
+    # headers:
+    #   - key: "foo"
+    #     value: "bar"
+    #     locked: true
+    # queryParameters:
+    #   - key: "bar"
+    #     value: "baz"
+    #     locked: false
