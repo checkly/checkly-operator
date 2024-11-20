@@ -28,16 +28,28 @@ type AlertChannelSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 
 	// SendRecovery determines if the Recovery event should be sent to the alert channel
-	SendRecovery bool `json:"sendrecovery,omitempty"`
+	SendRecovery bool `json:"sendRecovery,omitempty"`
 
 	// SendFailure determines if the Failure event should be sent to the alerting channel
-	SendFailure bool `json:"sendfailure,omitempty"`
+	SendFailure bool `json:"sendFailure,omitempty"`
+
+	// SendDegraded determines if the Failure event should be sent to the alerting channel
+	SendDegraded bool `json:"sendDegraded,omitempty"`
+
+	// SSLExpiry determine if alerts on SSL Expiry should be sent
+	SSLExpiry bool `json:"sslExpiry,omitempty"`
+
+	// SSLExpiryThreshold At what moment in time to start alerting on SSL certificates.
+	SSLExpiryThreshold int `json:"sslExpiryThreshold,omitempty"`
 
 	// OpsGenie holds information about the Opsgenie alert configuration
 	OpsGenie AlertChannelOpsGenie `json:"opsgenie,omitempty"`
 
 	// Email holds information about the Email alert configuration
 	Email checkly.AlertChannelEmail `json:"email,omitempty"`
+
+	// Webhook holds information about the Webhook alert configuration
+	Webhook AlertChannelWebhook `json:"webhook,omitempty"`
 }
 
 type AlertChannelOpsGenie struct {
@@ -49,6 +61,18 @@ type AlertChannelOpsGenie struct {
 
 	// Priority assigned to the alerts sent from checklyhq.com
 	Priority string `json:"priority,omitempty"`
+}
+
+// AlertChannelWebhook is a custom struct to hold information about Webhook configuration, source https://github.com/checkly/checkly-go-sdk/blame/main/types.go#L799-L808
+type AlertChannelWebhook struct {
+	Name            string                 `json:"name"`
+	URL             string                 `json:"url"`
+	WebhookType     string                 `json:"webhookType,omitempty"`
+	Method          string                 `json:"method"`
+	Template        string                 `json:"template,omitempty"`
+	WebhookSecret   corev1.ObjectReference `json:"webhookSecret,omitempty"`
+	Headers         []checkly.KeyValue     `json:"headers,omitempty"`
+	QueryParameters []checkly.KeyValue     `json:"queryParameters,omitempty"`
 }
 
 // AlertChannelStatus defines the observed state of AlertChannel

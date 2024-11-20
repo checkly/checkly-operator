@@ -195,5 +195,76 @@ var _ = Describe("ApiCheck Controller", func() {
 			}, timeout, interval).Should(Succeed())
 		})
 		// return
+
+		It("Test failures", func() {
+			acFailKey := types.NamespacedName{
+				Name: "test-alert-channel-failure",
+			}
+
+			secretKey := types.NamespacedName{
+				Name:      "test-secret",
+				Namespace: "default",
+			}
+
+			// secretData := map[string][]byte{
+			// 	"TEST": []byte("test"),
+			// }
+
+			// secret := &corev1.Secret{
+			// 	ObjectMeta: metav1.ObjectMeta{
+			// 		Name:      secretKey.Name,
+			// 		Namespace: secretKey.Namespace,
+			// 	},
+			// 	Data: secretData,
+			// }
+
+			alertChannel := &checklyv1alpha1.AlertChannel{
+				ObjectMeta: metav1.ObjectMeta{
+					Name: acFailKey.Name,
+				},
+				Spec: checklyv1alpha1.AlertChannelSpec{
+					SendFailure: false,
+					Webhook: checklyv1alpha1.AlertChannelWebhook{
+						Name:   "test-failure",
+						URL:    "http://foo.bar",
+						Method: "POST",
+						WebhookSecret: corev1.ObjectReference{
+							Namespace: secretKey.Namespace,
+							Name:      secretKey.Name,
+							FieldPath: "TEST",
+						},
+					},
+				},
+			}
+
+			Expect(k8sClient.Create(context.Background(), alertChannel)).Should(Succeed())
+
+			By("No ID present")
+			Eventually(func() bool {
+				f := &checklyv1alpha1.AlertChannel{}
+				err := k8sClient.Get(context.Background(), acFailKey, f)
+				if err != nil {
+					return false
+				}
+
+				Expect(f.Status.ID).Should(Equal(int64(0)), "Expecting empty value")
+
+				return true
+			}, timeout, interval).Should(BeTrue())
+
+			// Delete AlertChannel
+			By("Expecting to delete alertchannel successfully")
+			Eventually(func() error {
+				f := &checklyv1alpha1.AlertChannel{}
+				k8sClient.Get(context.Background(), acFailKey, f)
+				return k8sClient.Delete(context.Background(), f)
+			}, timeout, interval).Should(Succeed())
+
+			By("Expecting delete to finish")
+			Eventually(func() error {
+				f := &checklyv1alpha1.AlertChannel{}
+				return k8sClient.Get(context.Background(), acFailKey, f)
+			}, timeout, interval).ShouldNot(Succeed())
+		})
 	})
 })

@@ -23,6 +23,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -84,17 +85,22 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	if ac.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(ac, acFinalizer) {
 			logger.Info("Finalizer is present, trying to delete Checkly AlertChannel", "ID", ac.Status.ID)
-			err := external.DeleteAlertChannel(ac, r.ApiClient)
-			if err != nil {
-				logger.Error(err, "Failed to delete checkly AlertChannel")
-				return ctrl.Result{}, err
-			}
+			if ac.Status.ID != 0 {
+				err := external.DeleteAlertChannel(ac, r.ApiClient)
+				if err != nil {
+					logger.Error(err, "Failed to delete checkly AlertChannel")
+					return ctrl.Result{}, err
+				}
+				logger.Info("Successfully deleted checkly AlertChannel", "ID", ac.Status.ID)
 
-			logger.Info("Successfully deleted checkly AlertChannel", "ID", ac.Status.ID)
+			} else {
+				logger.Info("Alertchannel was not created on checklyhq.com, won't delete it upstream.")
+			}
 
 			controllerutil.RemoveFinalizer(ac, acFinalizer)
 			err = r.Update(ctx, ac)
 			if err != nil {
+				logger.Error(err, "Failed to remove finalizer")
 				return ctrl.Result{}, err
 			}
 			logger.Info("Successfully deleted finalizer from AlertChannel")
@@ -113,7 +119,7 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			return ctrl.Result{}, err
 		}
 		logger.Info("Added finalizer", "checkly AlertChannel ID", ac.Status.ID)
-		return ctrl.Result{}, nil
+		return ctrl.Result{Requeue: true}, nil
 	}
 
 	// /////////////////////////////
@@ -121,20 +127,9 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// ////////////////////////////
 	opsGenieConfig := checkly.AlertChannelOpsgenie{}
 	if ac.Spec.OpsGenie.APISecret != (corev1.ObjectReference{}) {
-		secret := &corev1.Secret{}
-		err := r.Get(ctx,
-			types.NamespacedName{
-				Name:      ac.Spec.OpsGenie.APISecret.Name,
-				Namespace: ac.Spec.OpsGenie.APISecret.Namespace},
-			secret)
+		secretValue, err := r.GetSecretValue(ctx, ac.Spec.OpsGenie.APISecret)
 		if err != nil {
-			logger.Info("Unable to read secret for API Key", "err", err)
-			return ctrl.Result{}, err
-		}
-
-		secretValue := string(secret.Data[ac.Spec.OpsGenie.APISecret.FieldPath])
-		if secretValue == "" {
-			logger.Info("Secret value is empty")
+			logger.Error(err, "couldn't retrieve secret value")
 			return ctrl.Result{}, err
 		}
 
@@ -148,6 +143,32 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	}
 
 	// /////////////////////////////
+	// Webhook logic + secret retrieval
+	// ////////////////////////////
+
+	var webhookConfig checkly.AlertChannelWebhook
+	var webhookSecretValue string
+	if ac.Spec.Webhook.WebhookSecret != (corev1.ObjectReference{}) {
+		webhookSecretValue, err = r.GetSecretValue(ctx, ac.Spec.Webhook.WebhookSecret)
+		if err != nil {
+			logger.Error(err, "couldn't retrieve secret value")
+			return ctrl.Result{}, err
+		}
+
+	}
+
+	webhookConfig = checkly.AlertChannelWebhook{
+		Name:            ac.Spec.Webhook.Name,
+		URL:             ac.Spec.Webhook.URL,
+		WebhookType:     ac.Spec.Webhook.WebhookType,
+		Method:          ac.Spec.Webhook.Method,
+		Template:        ac.Spec.Webhook.Template,
+		WebhookSecret:   webhookSecretValue,
+		Headers:         ac.Spec.Webhook.Headers,
+		QueryParameters: ac.Spec.Webhook.QueryParameters,
+	}
+
+	// /////////////////////////////
 	// Update logic
 	// ////////////////////////////
 
@@ -155,7 +176,7 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	if ac.Status.ID != 0 {
 		// Existing object, we need to update it
 		logger.Info("Existing object, with ID", "checkly AlertChannel ID", ac.Status.ID)
-		err := external.UpdateAlertChannel(ac, opsGenieConfig, r.ApiClient)
+		err := external.UpdateAlertChannel(ac, opsGenieConfig, webhookConfig, r.ApiClient)
 		if err != nil {
 			logger.Error(err, "Failed to update checkly AlertChannel")
 			return ctrl.Result{}, err
@@ -167,7 +188,7 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// /////////////////////////////
 	// Create logic
 	// ////////////////////////////
-	acID, err := external.CreateAlertChannel(ac, opsGenieConfig, r.ApiClient)
+	acID, err := external.CreateAlertChannel(ac, opsGenieConfig, webhookConfig, r.ApiClient)
 	if err != nil {
 		logger.Error(err, "Failed to create checkly AlertChannel")
 		return ctrl.Result{}, err
@@ -190,4 +211,25 @@ func (r *AlertChannelReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
 		For(&checklyv1alpha1.AlertChannel{}).
 		Complete(r)
+}
+
+func (r *AlertChannelReconciler) GetSecretValue(ctx context.Context, secretObject corev1.ObjectReference) (secretValue string, err error) {
+	secret := &corev1.Secret{}
+	err = r.Get(ctx,
+		types.NamespacedName{
+			Name:      secretObject.Name,
+			Namespace: secretObject.Namespace,
+		}, secret)
+
+	if err != nil {
+		return
+	}
+
+	secretValue = string(secret.Data[secretObject.FieldPath])
+	if secretValue == "" {
+		err = errors.NewNotFound(schema.GroupResource{Group: "corev1", Resource: "secret"}, secretObject.Name)
+		return
+	}
+
+	return
 }

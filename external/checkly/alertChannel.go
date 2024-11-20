@@ -8,13 +8,16 @@ import (
 	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
 )
 
-func checklyAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConfig checkly.AlertChannelOpsgenie) (ac checkly.AlertChannel, err error) {
-	sslExpiry := false
-
+func checklyAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConfig checkly.AlertChannelOpsgenie, webhookConfig checkly.AlertChannelWebhook) (ac checkly.AlertChannel, err error) {
 	ac = checkly.AlertChannel{
 		SendRecovery: &alertChannel.Spec.SendRecovery,
 		SendFailure:  &alertChannel.Spec.SendFailure,
-		SSLExpiry:    &sslExpiry,
+		SendDegraded: &alertChannel.Spec.SendDegraded,
+		SSLExpiry:    &alertChannel.Spec.SSLExpiry,
+	}
+
+	if (alertChannel.Spec.SSLExpiryThreshold > 0) && (alertChannel.Spec.SSLExpiryThreshold < 30) {
+		ac.SSLExpiryThreshold = &alertChannel.Spec.SSLExpiryThreshold
 	}
 
 	if opsGenieConfig != (checkly.AlertChannelOpsgenie{}) {
@@ -30,12 +33,17 @@ func checklyAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieCon
 		}
 		return
 	}
+
+	if webhookConfig.Name != "" { // Struct has []KeyValue types which can't be compared
+		ac.Type = "WEBHOOK" // Type has to be all caps, see https://developers.checklyhq.com/reference/postv1alertchannels
+		ac.Webhook = &webhookConfig
+	}
 	return
 }
 
-func CreateAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConfig checkly.AlertChannelOpsgenie, client checkly.Client) (ID int64, err error) {
+func CreateAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConfig checkly.AlertChannelOpsgenie, webhookConfig checkly.AlertChannelWebhook, client checkly.Client) (ID int64, err error) {
 
-	ac, err := checklyAlertChannel(alertChannel, opsGenieConfig)
+	ac, err := checklyAlertChannel(alertChannel, opsGenieConfig, webhookConfig)
 	if err != nil {
 		return
 	}
@@ -53,8 +61,8 @@ func CreateAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConf
 	return
 }
 
-func UpdateAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConfig checkly.AlertChannelOpsgenie, client checkly.Client) (err error) {
-	ac, err := checklyAlertChannel(alertChannel, opsGenieConfig)
+func UpdateAlertChannel(alertChannel *checklyv1alpha1.AlertChannel, opsGenieConfig checkly.AlertChannelOpsgenie, webhookConfig checkly.AlertChannelWebhook, client checkly.Client) (err error) {
+	ac, err := checklyAlertChannel(alertChannel, opsGenieConfig, webhookConfig)
 	if err != nil {
 		return
 	}
