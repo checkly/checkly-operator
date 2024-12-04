@@ -18,6 +18,7 @@ package checkly
 
 import (
 	"context"
+	errs "errors"
 	"fmt"
 
 	corev1 "k8s.io/api/core/v1"
@@ -55,7 +56,7 @@ type AlertChannelReconciler struct {
 func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	logger.Info("Reconciler started")
+	logger.V(1).Info("Reconciler started")
 
 	acFinalizer := fmt.Sprintf("%s/finalizer", r.ControllerDomain)
 
@@ -69,7 +70,7 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// The resource has been deleted
-			logger.Info("Deleted", "checkly AlertChannel ID", ac.Status.ID)
+			logger.V(1).Info("Deleted", "checkly AlertChannel ID", ac.Status.ID)
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object
@@ -83,21 +84,22 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	if ac.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(ac, acFinalizer) {
-			logger.Info("Finalizer is present, trying to delete Checkly AlertChannel", "ID", ac.Status.ID)
+			logger.V(1).Info("Finalizer is present, trying to delete Checkly AlertChannel", "ID", ac.Status.ID)
 			err := external.DeleteAlertChannel(ac, r.ApiClient)
 			if err != nil {
 				logger.Error(err, "Failed to delete checkly AlertChannel")
 				return ctrl.Result{}, err
 			}
 
-			logger.Info("Successfully deleted checkly AlertChannel", "ID", ac.Status.ID)
+			logger.V(1).Info("Successfully deleted checkly AlertChannel", "ID", ac.Status.ID)
 
 			controllerutil.RemoveFinalizer(ac, acFinalizer)
 			err = r.Update(ctx, ac)
 			if err != nil {
+				logger.Error(err, "Failed to delete finalizer.")
 				return ctrl.Result{}, err
 			}
-			logger.Info("Successfully deleted finalizer from AlertChannel")
+			logger.V(1).Info("Successfully deleted finalizer from AlertChannel")
 		}
 		return ctrl.Result{}, nil
 	}
@@ -112,7 +114,7 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 			logger.Error(err, "Failed to update AlertChannel status")
 			return ctrl.Result{}, err
 		}
-		logger.Info("Added finalizer", "checkly AlertChannel ID", ac.Status.ID)
+		logger.V(1).Info("Added finalizer", "checkly AlertChannel ID", ac.Status.ID)
 		return ctrl.Result{}, nil
 	}
 
@@ -128,13 +130,14 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 				Namespace: ac.Spec.OpsGenie.APISecret.Namespace},
 			secret)
 		if err != nil {
-			logger.Info("Unable to read secret for API Key", "err", err)
+			logger.Error(err, "Unable to read secret for API Key")
 			return ctrl.Result{}, err
 		}
 
 		secretValue := string(secret.Data[ac.Spec.OpsGenie.APISecret.FieldPath])
 		if secretValue == "" {
-			logger.Info("Secret value is empty")
+			secretErr := errs.New("secret value is empty")
+			logger.Error(secretErr, "Please add Opsgenie secret")
 			return ctrl.Result{}, err
 		}
 
@@ -154,13 +157,13 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 	// Determine if it's a new object or if it's an update to an existing object
 	if ac.Status.ID != 0 {
 		// Existing object, we need to update it
-		logger.Info("Existing object, with ID", "checkly AlertChannel ID", ac.Status.ID)
+		logger.V(1).Info("Existing object, with ID", "checkly AlertChannel ID", ac.Status.ID)
 		err := external.UpdateAlertChannel(ac, opsGenieConfig, r.ApiClient)
 		if err != nil {
 			logger.Error(err, "Failed to update checkly AlertChannel")
 			return ctrl.Result{}, err
 		}
-		logger.Info("Updated checkly AlertChannel", "ID", ac.Status.ID)
+		logger.V(1).Info("Updated checkly AlertChannel", "ID", ac.Status.ID)
 		return ctrl.Result{}, nil
 	}
 
@@ -180,7 +183,7 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 		logger.Error(err, "Failed to update AlertChannel status", "ID", ac.Status.ID)
 		return ctrl.Result{}, err
 	}
-	logger.Info("New checkly AlertChannel created", "ID", ac.Status.ID)
+	logger.V(1).Info("New checkly AlertChannel created", "ID", ac.Status.ID)
 
 	return ctrl.Result{}, nil
 }

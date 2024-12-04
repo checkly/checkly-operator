@@ -53,7 +53,7 @@ type GroupReconciler struct {
 func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	logger.Info("Reconciler started")
+	logger.V(1).Info("Reconciler started")
 
 	groupFinalizer := fmt.Sprintf("%s/finalizer", r.ControllerDomain)
 
@@ -78,7 +78,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// If DeletionTimestamp is present, the object is marked for deletion, we need to remove the finalizer
 	if group.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(group, groupFinalizer) {
-			logger.Info("Finalizer is present, trying to delete Checkly group", "checkly group ID", group.Status.ID)
+			logger.V(1).Info("Finalizer is present, trying to delete Checkly group", "checkly group ID", group.Status.ID)
 			err := external.GroupDelete(group.Status.ID, r.ApiClient)
 			if err != nil {
 				logger.Error(err, "Failed to delete checkly group")
@@ -90,15 +90,16 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			controllerutil.RemoveFinalizer(group, groupFinalizer)
 			err = r.Update(ctx, group)
 			if err != nil {
+				logger.Error(err, "Failed to delete finalizer")
 				return ctrl.Result{}, err
 			}
-			logger.Info("Successfully deleted finalizer")
+			logger.V(1).Info("Successfully deleted finalizer")
 		}
 		return ctrl.Result{}, nil
 	}
 
 	// Object found, let's do something with it. It's either updated, or it's new.
-	logger.Info("Checkly group found")
+	logger.V(1).Info("Checkly group found")
 
 	// /////////////////////////////
 	// Finalizer logic
@@ -110,7 +111,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			logger.Error(err, "Failed to add Group finalizer")
 			return ctrl.Result{}, err
 		}
-		logger.Info("Added finalizer", "checkly group ID", group.Status.ID)
+		logger.V(1).Info("Added finalizer", "checkly group ID", group.Status.ID)
 		return ctrl.Result{}, nil
 	}
 
@@ -124,7 +125,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 			ac := &checklyv1alpha1.AlertChannel{}
 			err := r.Get(ctx, types.NamespacedName{Name: alertChannel}, ac)
 			if err != nil {
-				logger.Info("Could not find alertChannel resource", "name", alertChannel)
+				logger.Error(err, "Could not find alertChannel resource", "name", alertChannel)
 				return ctrl.Result{}, err
 			}
 			if ac.Status.ID == 0 {
@@ -155,13 +156,13 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// Determine if it's a new object or if it's an update to an existing object
 	if group.Status.ID != 0 {
 		// Existing object, we need to update it
-		logger.Info("Existing object, with ID", "checkly group ID", group.Status.ID)
+		logger.V(1).Info("Existing object, with ID", "checkly group ID", group.Status.ID)
 		err := external.GroupUpdate(internalCheck, r.ApiClient)
 		if err != nil {
 			logger.Error(err, "Failed to update the checkly group")
 			return ctrl.Result{}, err
 		}
-		logger.Info("Updated checkly check", "checkly group ID", group.Status.ID)
+		logger.V(1).Info("Updated checkly check", "checkly group ID", group.Status.ID)
 		return ctrl.Result{}, nil
 	}
 

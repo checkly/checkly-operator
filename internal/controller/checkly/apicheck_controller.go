@@ -59,6 +59,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	logger := log.FromContext(ctx)
 
 	apiCheckFinalizer := fmt.Sprintf("%s/finalizer", r.ControllerDomain)
+	logger.V(1).Info("Reconciler started")
 
 	apiCheck := &checklyv1alpha1.ApiCheck{}
 
@@ -69,7 +70,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// The resource has been deleted
-			logger.Info("Deleted", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint, "name", apiCheck.Name)
+			logger.V(1).Info("Deleted", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint, "name", apiCheck.Name)
 			return ctrl.Result{}, nil
 		}
 		// Error reading the object
@@ -79,7 +80,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	if apiCheck.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(apiCheck, apiCheckFinalizer) {
-			logger.Info("Finalizer is present, trying to delete Checkly check", "checkly ID", apiCheck.Status.ID)
+			logger.V(1).Info("Finalizer is present, trying to delete Checkly check", "checkly ID", apiCheck.Status.ID)
 			err := external.Delete(apiCheck.Status.ID, r.ApiClient)
 			if err != nil {
 				logger.Error(err, "Failed to delete checkly API check")
@@ -91,15 +92,16 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			controllerutil.RemoveFinalizer(apiCheck, apiCheckFinalizer)
 			err = r.Update(ctx, apiCheck)
 			if err != nil {
+				logger.Error(err, "Failed to delete finalizer")
 				return ctrl.Result{}, err
 			}
-			logger.Info("Successfully deleted finalizer")
+			logger.V(1).Info("Successfully deleted finalizer")
 		}
 		return ctrl.Result{}, nil
 	}
 
 	// Object found, let's do something with it. It's either updated, or it's new.
-	logger.Info("Object found", "endpoint", apiCheck.Spec.Endpoint)
+	logger.V(1).Info("Object found", "endpoint", apiCheck.Spec.Endpoint)
 
 	// /////////////////////////////
 	// Finalizer logic
@@ -111,7 +113,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 			logger.Error(err, "Failed to update ApiCheck status")
 			return ctrl.Result{}, err
 		}
-		logger.Info("Added finalizer", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint)
+		logger.V(1).Info("Added finalizer", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint)
 		return ctrl.Result{}, nil
 	}
 
@@ -123,7 +125,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// The resource has been deleted
-			logger.Info("Group not found, probably deleted or does not exist", "name", apiCheck.Spec.Group)
+			logger.Error(err, "Group not found, probably deleted or does not exist", "name", apiCheck.Spec.Group)
 			return ctrl.Result{}, err
 		}
 		// Error reading the object
@@ -132,7 +134,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	if group.Status.ID == 0 {
-		logger.Info("Group ID has not been populated, we're too quick, requeining for retry", "group name", apiCheck.Spec.Group)
+		logger.V(1).Info("Group ID has not been populated, we're too quick, requeining for retry", "group name", apiCheck.Spec.Group)
 		return ctrl.Result{Requeue: true}, nil
 	}
 
@@ -157,7 +159,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	// Determine if it's a new object or if it's an update to an existing object
 	if apiCheck.Status.ID != "" {
 		// Existing object, we need to update it
-		logger.Info("Existing object, with ID", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint)
+		logger.V(1).Info("Existing object, with ID", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint)
 		err := external.Update(internalCheck, r.ApiClient)
 		// err :=
 		if err != nil {
@@ -187,7 +189,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		logger.Error(err, "Failed to update ApiCheck status")
 		return ctrl.Result{}, err
 	}
-	logger.Info("New checkly check created with", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint)
+	logger.V(1).Info("New checkly check created with", "checkly ID", apiCheck.Status.ID, "spec", apiCheck.Spec)
 
 	return ctrl.Result{}, nil
 }

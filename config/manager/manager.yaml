@@ -33,6 +33,7 @@ spec:
         args:
         - --leader-elect
         - --controller-domain=k8s.checklyhq.com
+        - --zap-log-level=info
         image: controller:latest
         name: manager
         env:

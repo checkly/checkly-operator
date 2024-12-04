@@ -47,6 +47,7 @@ unset CHECKLY_OPERATOR_RELEASE
 Feel free to edit the `install.yaml` file to your liking, usually you'd want to change:
 * checkly-operator deployment replica count
 * checkly-operator deployment CPU and Memory resources
+* log levels via the `--zap-log-level` CLI options, valid options are `debug`, `info`, `error`
 
 You can apply the `install.yaml`, this will create the namespace, we need this to create the secrets in the next step:
 ```bash
