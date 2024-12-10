@@ -20,9 +20,6 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
-// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
-
 // Assertion defines a single validation condition for the API check
 type Assertion struct {
 	// Source of the assertion (e.g., STATUS_CODE, JSON_BODY, etc.)
@@ -58,6 +55,9 @@ type ApiCheckSpec struct {
 
 	// Success determines the expected HTTP status code, e.g., 200
 	Success string `json:"success"`
+
+	// Method defines the HTTP method to use for the check, e.g., GET, POST, PUT (default is GET)
+	Method string `json:"method,omitempty"`
 
 	// Assertions define the validation conditions for the check
 	Assertions []Assertion `json:"assertions,omitempty"`

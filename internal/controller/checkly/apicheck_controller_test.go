@@ -48,7 +48,7 @@ var _ = Describe("ApiCheck Controller", func() {
 	})
 
 	Context("ApiCheck", func() {
-		It("Full reconciliation with assertions", func() {
+		It("Full reconciliation with assertions and method", func() {
 
 			key := types.NamespacedName{
 				Name:      "test-apicheck",
@@ -75,6 +75,7 @@ var _ = Describe("ApiCheck Controller", func() {
 					Success:  "200",
 					Group:    groupKey.Name,
 					Muted:    true,
+					Method:   "POST",
 					Assertions: []checklyv1alpha1.Assertion{
 						{
 							Source:     "STATUS_CODE",
@@ -105,7 +106,7 @@ var _ = Describe("ApiCheck Controller", func() {
 			}, timeout, interval).Should(BeTrue())
 
 			// Status.ID should be present
-			By("Expecting group ID and assertions")
+			By("Expecting group ID, method, and assertions")
 			Eventually(func() bool {
 				f := &checklyv1alpha1.ApiCheck{}
 				err := k8sClient.Get(context.Background(), key, f)
@@ -114,6 +115,10 @@ var _ = Describe("ApiCheck Controller", func() {
 				}
 
 				if f.Spec.Muted != true {
+					return false
+				}
+
+				if f.Spec.Method != "POST" {
 					return false
 				}
 

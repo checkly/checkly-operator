@@ -97,6 +97,10 @@ spec:
                   MaxResponseTime determines the maximum number of milliseconds
                   that can pass before the check fails, default 15000
                 type: integer
+              method:
+                description: Method defines the HTTP method to use for the check,
+                  e.g., GET, POST, PUT (default is GET)
+                type: string
               muted:
                 description: Muted determines if the created alert is muted or not,
                   default false

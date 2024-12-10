@@ -33,7 +33,7 @@ import (
 	external "github.com/checkly/checkly-operator/external/checkly"
 )
 
-// ApiCheckReconciler reconciles a ApiCheck object
+// ApiCheckReconciler reconciles an ApiCheck object
 type ApiCheckReconciler struct {
 	client.Client
 	Scheme           *runtime.Scheme
@@ -46,15 +46,6 @@ type ApiCheckReconciler struct {
 //+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=apichecks/finalizers,verbs=update
 //+kubebuilder:rbac:groups=k8s.checklyhq.com,resources=groups,verbs=get;list
 
-// Reconcile is part of the main kubernetes reconciliation loop which aims to
-// move the current state of the cluster closer to the desired state.
-// TODO(user): Modify the Reconcile function to compare the state specified by
-// the ApiCheck object against the actual cluster state, and then
-// perform operations to make the cluster state reflect the state specified by
-// the user.
-//
-// For more details, check Reconcile and its Result here:
-// - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
@@ -134,11 +125,11 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	if group.Status.ID == 0 {
-		logger.V(1).Info("Group ID has not been populated, we're too quick, requeining for retry", "group name", apiCheck.Spec.Group)
+		logger.V(1).Info("Group ID has not been populated, we're too quick, requeuing for retry", "group name", apiCheck.Spec.Group)
 		return ctrl.Result{Requeue: true}, nil
 	}
 
-	// Create internal Check type
+	// Pass through method field without defaulting
 	internalCheck := external.Check{
 		Name:            apiCheck.Name,
 		Namespace:       apiCheck.Namespace,
@@ -151,6 +142,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		Muted:           apiCheck.Spec.Muted,
 		Labels:          apiCheck.Labels,
 		Assertions:      r.mapAssertions(apiCheck.Spec.Assertions),
+		Method:          apiCheck.Spec.Method, // Pass the method field directly
 	}
 
 	// /////////////////////////////
@@ -162,7 +154,6 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		// Existing object, we need to update it
 		logger.V(1).Info("Existing object, with ID", "checkly ID", apiCheck.Status.ID, "endpoint", apiCheck.Spec.Endpoint)
 		err := external.Update(internalCheck, r.ApiClient)
-		// err :=
 		if err != nil {
 			logger.Error(err, "Failed to update the checkly check")
 			return ctrl.Result{}, err

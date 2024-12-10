@@ -33,6 +33,7 @@ func TestChecklyCheck(t *testing.T) {
 		Endpoint:        "https://foo.bar/baz",
 		SuccessCode:     "403",
 		Muted:           true,
+		Method:          "POST",
 		Assertions: []checkly.Assertion{
 			{
 				Source:     "JSONBody",
@@ -80,6 +81,10 @@ func TestChecklyCheck(t *testing.T) {
 		}
 	}
 
+	if testData.Request.Method != data.Method {
+		t.Errorf("Expected Method %s, got %s", data.Method, testData.Request.Method)
+	}
+
 	if testData.Muted != data.Muted {
 		t.Errorf("Expected %t, got %t", data.Muted, testData.Muted)
 	}
@@ -100,6 +105,7 @@ func TestChecklyCheckActions(t *testing.T) {
 		MaxResponseTime: 2000,
 		Endpoint:        "https://foo.bar/baz",
 		SuccessCode:     "200",
+		Method:          "PUT",
 		ID:              "",
 		Assertions: []checkly.Assertion{
 			{
@@ -230,7 +236,7 @@ func TestShouldFail(t *testing.T) {
 
 	testResponse, err := shouldFail(testTrue)
 	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
+		t.Errorf("Expected no error, got %v", err)
 	}
 	if testResponse != true {
 		t.Errorf("Expected true, got %t", testResponse)
@@ -238,7 +244,7 @@ func TestShouldFail(t *testing.T) {
 
 	testResponse, err = shouldFail(testFalse)
 	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
+		t.Errorf("Expected no error, got %v", err)
 	}
 	if testResponse != false {
 		t.Errorf("Expected false, got %t", testResponse)
@@ -248,5 +254,4 @@ func TestShouldFail(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error, got none")
 	}
-
 }

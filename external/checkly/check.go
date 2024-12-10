@@ -38,6 +38,7 @@ type Check struct {
 	Muted           bool
 	Labels          map[string]string
 	Assertions      []checkly.Assertion // Align with checkly's Assertion struct
+	Method          string              // HTTP method to use for the check
 }
 
 func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
@@ -81,6 +82,12 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		}
 	}
 
+	// Determine the HTTP method; default to GET if not specified
+	method := http.MethodGet
+	if apiCheck.Method != "" {
+		method = apiCheck.Method
+	}
+
 	// Create the Checkly API check structure
 	check = checkly.Check{
 		Name:                 apiCheck.Name,
@@ -97,7 +104,7 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		Locations:            []string{},
 		Tags:                 tags,
 		Request: checkly.Request{
-			Method:          http.MethodGet,
+			Method:          method,
 			URL:             apiCheck.Endpoint,
 			Assertions:      assertions,
 			Headers:         []checkly.KeyValue{},
