@@ -37,19 +37,21 @@ type Check struct {
 	ID              string
 	Muted           bool
 	Labels          map[string]string
+	Assertions      []checkly.Assertion // Align with checkly's Assertion struct
 }
 
 func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
-
+	// Ensure `shouldFail` logic is handled
 	shouldFail, err := shouldFail(apiCheck.SuccessCode)
 	if err != nil {
 		return
 	}
 
+	// Map tags from labels and namespace
 	tags := getTags(apiCheck.Labels)
-	tags = append(tags, "checkly-operator")
-	tags = append(tags, apiCheck.Namespace)
+	tags = append(tags, "checkly-operator", apiCheck.Namespace)
 
+	// Define alert settings
 	alertSettings := checkly.AlertSettings{
 		EscalationType: checkly.RunBased,
 		RunBasedEscalation: checkly.RunBasedEscalation{
@@ -67,49 +69,44 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		},
 	}
 
+	// Default assertion logic: If no assertions are provided, add a default
+	assertions := apiCheck.Assertions
+	if len(assertions) == 0 {
+		assertions = []checkly.Assertion{
+			{
+				Source:     checkly.StatusCode,
+				Comparison: checkly.Equals,
+				Target:     apiCheck.SuccessCode,
+			},
+		}
+	}
+
+	// Create the Checkly API check structure
 	check = checkly.Check{
-		Name:                   apiCheck.Name,
-		Type:                   checkly.TypeAPI,
-		Frequency:              checkValueInt(apiCheck.Frequency, 5),
-		DegradedResponseTime:   5000,
-		MaxResponseTime:        checkValueInt(apiCheck.MaxResponseTime, 15000),
-		Activated:              true,
-		Muted:                  apiCheck.Muted, // muted for development
-		ShouldFail:             shouldFail,
-		DoubleCheck:            false,
-		SSLCheck:               false,
-		LocalSetupScript:       "",
-		LocalTearDownScript:    "",
-		Locations:              []string{},
-		Tags:                   tags,
-		AlertSettings:          alertSettings,
+		Name:                 apiCheck.Name,
+		Type:                 checkly.TypeAPI,
+		Frequency:            checkValueInt(apiCheck.Frequency, 5),
+		DegradedResponseTime: 5000,
+		MaxResponseTime:      checkValueInt(apiCheck.MaxResponseTime, 15000),
+		Activated:            true,
+		Muted:                apiCheck.Muted,
+		ShouldFail:           shouldFail,
+		DoubleCheck:          false,
+		SSLCheck:             false,
+		AlertSettings:        alertSettings,
+		Locations:            []string{},
+		Tags:                 tags,
+		Request: checkly.Request{
+			Method:          http.MethodGet,
+			URL:             apiCheck.Endpoint,
+			Assertions:      assertions,
+			Headers:         []checkly.KeyValue{},
+			QueryParameters: []checkly.KeyValue{},
+			Body:            "",
+			BodyType:        "NONE",
+		},
 		UseGlobalAlertSettings: false,
 		GroupID:                apiCheck.GroupID,
-		Request: checkly.Request{
-			Method:  http.MethodGet,
-			URL:     apiCheck.Endpoint,
-			Headers: []checkly.KeyValue{
-				// {
-				// 	Key:   "X-Test",
-				// 	Value: "foo",
-				// },
-			},
-			QueryParameters: []checkly.KeyValue{
-				// {
-				// 	Key:   "query",
-				// 	Value: "foo",
-				// },
-			},
-			Assertions: []checkly.Assertion{
-				{
-					Source:     checkly.StatusCode,
-					Comparison: checkly.Equals,
-					Target:     apiCheck.SuccessCode,
-				},
-			},
-			Body:     "",
-			BodyType: "NONE",
-		},
 	}
 
 	return

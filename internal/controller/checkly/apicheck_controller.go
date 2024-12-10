@@ -150,6 +150,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		GroupID:         group.Status.ID,
 		Muted:           apiCheck.Spec.Muted,
 		Labels:          apiCheck.Labels,
+		Assertions:      r.mapAssertions(apiCheck.Spec.Assertions),
 	}
 
 	// /////////////////////////////
@@ -192,6 +193,20 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	logger.V(1).Info("New checkly check created with", "checkly ID", apiCheck.Status.ID, "spec", apiCheck.Spec)
 
 	return ctrl.Result{}, nil
+}
+
+// mapAssertions maps ApiCheck assertions to external.Check assertions
+func (r *ApiCheckReconciler) mapAssertions(assertions []checklyv1alpha1.Assertion) []checkly.Assertion {
+	var mapped []checkly.Assertion
+	for _, assertion := range assertions {
+		mapped = append(mapped, checkly.Assertion{
+			Source:     assertion.Source,
+			Property:   assertion.Property,
+			Comparison: assertion.Comparison,
+			Target:     assertion.Target,
+		})
+	}
+	return mapped
 }
 
 // SetupWithManager sets up the controller with the Manager.

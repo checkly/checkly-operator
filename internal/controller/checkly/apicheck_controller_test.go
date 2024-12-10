@@ -47,12 +47,8 @@ var _ = Describe("ApiCheck Controller", func() {
 		// Add any teardown steps that needs to be executed after each test
 	})
 
-	// Add Tests for OpenAPI validation (or additonal CRD features) specified in
-	// your API definition.
-	// Avoid adding tests for vanilla CRUD operations because they would
-	// test Kubernetes API server, which isn't the goal here.
 	Context("ApiCheck", func() {
-		It("Full reconciliation", func() {
+		It("Full reconciliation with assertions", func() {
 
 			key := types.NamespacedName{
 				Name:      "test-apicheck",
@@ -79,6 +75,18 @@ var _ = Describe("ApiCheck Controller", func() {
 					Success:  "200",
 					Group:    groupKey.Name,
 					Muted:    true,
+					Assertions: []checklyv1alpha1.Assertion{
+						{
+							Source:     "STATUS_CODE",
+							Comparison: "EQUALS",
+							Target:     "200",
+						},
+						{
+							Source:     "JSON_BODY",
+							Property:   "$.status",
+							Comparison: "NOT_NULL",
+						},
+					},
 				},
 			}
 
@@ -97,7 +105,7 @@ var _ = Describe("ApiCheck Controller", func() {
 			}, timeout, interval).Should(BeTrue())
 
 			// Status.ID should be present
-			By("Expecting group ID")
+			By("Expecting group ID and assertions")
 			Eventually(func() bool {
 				f := &checklyv1alpha1.ApiCheck{}
 				err := k8sClient.Get(context.Background(), key, f)
@@ -106,6 +114,10 @@ var _ = Describe("ApiCheck Controller", func() {
 				}
 
 				if f.Spec.Muted != true {
+					return false
+				}
+
+				if len(f.Spec.Assertions) != 2 {
 					return false
 				}
 

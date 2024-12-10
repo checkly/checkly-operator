@@ -30,6 +30,7 @@ Any `metadata.labels` specified will be transformed into tags, for example `envi
 | `frequency` | Integer; Frequency of minutes between each check, possible values: 1,2,5,10,15,30,60,120,180 | `5`|
 | `muted` | Bool; Is the check muted or not | `false` |
 | `maxresponsetime` | Integer; Number of milliseconds to wait for a response | `15000` |
+| `assertions` | Array; a list of conditions to validate the check’s response | none (*optional) |
 
 ### Example
 
@@ -47,6 +48,13 @@ spec:
   frequency: 10 # Default 5
   muted: true # Default "false"
   group: "checkly-operator-test-group"
+  assertions:
+  - source: "STATUS_CODE"
+  comparison: "EQUALS"
+  target: "200"
+  - source: "JSON_BODY"
+  property: "$.status"
+  comparison: "NOT_NULL"
 ---
 apiVersion: k8s.checklyhq.com/v1alpha1
 kind: ApiCheck
@@ -59,4 +67,8 @@ spec:
   endpoint: "https://foo.bar/baaz"
   success: "200"
   group: "checkly-operator-test-group"
+  assertions:
+  - source: "STATUS_CODE"
+  comparison: "EQUALS"
+  target: "200"
 ```

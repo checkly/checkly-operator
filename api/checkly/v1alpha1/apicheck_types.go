@@ -23,28 +23,44 @@ import (
 // EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 
+// Assertion defines a single validation condition for the API check
+type Assertion struct {
+	// Source of the assertion (e.g., STATUS_CODE, JSON_BODY, etc.)
+	Source string `json:"source"`
+
+	// Property to validate, e.g., a JSONPath expression like $.result (optional)
+	Property string `json:"property,omitempty"`
+
+	// Comparison operation (e.g., EQUALS, NOT_NULL, etc.)
+	Comparison string `json:"comparison"`
+
+	// Target value for the comparison (optional)
+	Target string `json:"target,omitempty"`
+}
+
 // ApiCheckSpec defines the desired state of ApiCheck
 type ApiCheckSpec struct {
-	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
+	// Endpoint determines which URL to monitor, e.g., https://foo.bar/baz
+	Endpoint string `json:"endpoint"`
 
-	// Frequency is used to determine the frequency of the checks in minutes, default 5
+	// Frequency determines the frequency of the checks in minutes, default 5
 	Frequency int `json:"frequency,omitempty"`
+
+	// Group determines in which group the check belongs
+	Group string `json:"group"`
+
+	// MaxResponseTime determines the maximum number of milliseconds
+	// that can pass before the check fails, default 15000
+	MaxResponseTime int `json:"maxresponsetime,omitempty"`
 
 	// Muted determines if the created alert is muted or not, default false
 	Muted bool `json:"muted,omitempty"`
 
-	// Endpoint determines which URL to monitor, ex. https://foo.bar/baz
-	Endpoint string `json:"endpoint"`
-
-	// Success determines the returned success code, ex. 200
+	// Success determines the expected HTTP status code, e.g., 200
 	Success string `json:"success"`
 
-	// MaxResponseTime determines what the maximum number of miliseconds can pass before the check fails, default 15000
-	MaxResponseTime int `json:"maxresponsetime,omitempty"`
-
-	// Group determines in which group does the check belong to
-	Group string `json:"group"`
+	// Assertions define the validation conditions for the check
+	Assertions []Assertion `json:"assertions,omitempty"`
 }
 
 // ApiCheckStatus defines the observed state of ApiCheck

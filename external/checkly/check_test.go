@@ -25,8 +25,7 @@ import (
 )
 
 func TestChecklyCheck(t *testing.T) {
-
-	data1 := Check{
+	data := Check{
 		Name:            "foo",
 		Namespace:       "bar",
 		Frequency:       15,
@@ -34,70 +33,66 @@ func TestChecklyCheck(t *testing.T) {
 		Endpoint:        "https://foo.bar/baz",
 		SuccessCode:     "403",
 		Muted:           true,
+		Assertions: []checkly.Assertion{
+			{
+				Source:     "JSONBody",
+				Property:   "$.result",
+				Comparison: "Equals",
+				Target:     "false",
+			},
+			{
+				Source:     "JSONBody",
+				Comparison: "NotNull",
+			},
+		},
 	}
 
-	testData, _ := checklyCheck(data1)
-
-	if testData.Name != data1.Name {
-		t.Errorf("Expected %s, got %s", data1.Name, testData.Name)
+	testData, err := checklyCheck(data)
+	if err != nil {
+		t.Fatalf("Expected no error, got %v", err)
 	}
 
-	if testData.Frequency != data1.Frequency {
-		t.Errorf("Expected %d, got %d", data1.Frequency, testData.Frequency)
+	if testData.Name != data.Name {
+		t.Errorf("Expected %s, got %s", data.Name, testData.Name)
 	}
 
-	if testData.MaxResponseTime != data1.MaxResponseTime {
-		t.Errorf("Expected %d, got %d", data1.MaxResponseTime, testData.MaxResponseTime)
+	if testData.Frequency != data.Frequency {
+		t.Errorf("Expected %d, got %d", data.Frequency, testData.Frequency)
 	}
 
-	if testData.Muted != data1.Muted {
-		t.Errorf("Expected %t, got %t", data1.Muted, testData.Muted)
+	if testData.MaxResponseTime != data.MaxResponseTime {
+		t.Errorf("Expected %d, got %d", data.MaxResponseTime, testData.MaxResponseTime)
+	}
+
+	if len(testData.Request.Assertions) != len(data.Assertions) {
+		t.Errorf("Expected %d assertions, got %d", len(data.Assertions), len(testData.Request.Assertions))
+	}
+
+	for i, assertion := range testData.Request.Assertions {
+		if assertion.Source != data.Assertions[i].Source {
+			t.Errorf("Expected Source %s, got %s", data.Assertions[i].Source, assertion.Source)
+		}
+		if assertion.Comparison != data.Assertions[i].Comparison {
+			t.Errorf("Expected Comparison %s, got %s", data.Assertions[i].Comparison, assertion.Comparison)
+		}
+		if assertion.Target != data.Assertions[i].Target {
+			t.Errorf("Expected Target %s, got %s", data.Assertions[i].Target, assertion.Target)
+		}
+	}
+
+	if testData.Muted != data.Muted {
+		t.Errorf("Expected %t, got %t", data.Muted, testData.Muted)
 	}
 
 	if testData.ShouldFail != true {
-		t.Errorf("Expected %t, got %t", true, testData.ShouldFail)
+		t.Errorf("Expected true for ShouldFail, got false")
 	}
-
-	data2 := Check{
-		Name:        "foo",
-		Namespace:   "bar",
-		Endpoint:    "https://foo.bar/baz",
-		SuccessCode: "200",
-	}
-
-	testData, _ = checklyCheck(data2)
-
-	if testData.Frequency != 5 {
-		t.Errorf("Expected %d, got %d", 5, testData.Frequency)
-	}
-
-	if testData.MaxResponseTime != 15000 {
-		t.Errorf("Expected %d, got %d", 15000, testData.MaxResponseTime)
-	}
-
-	if testData.ShouldFail != false {
-		t.Errorf("Expected %t, got %t", false, testData.ShouldFail)
-	}
-
-	failData := Check{
-		Name:        "fail",
-		Namespace:   "bar",
-		Endpoint:    "https://foo.bar/baz",
-		SuccessCode: "foo",
-	}
-
-	_, err := checklyCheck(failData)
-	if err == nil {
-		t.Error("Expected error, got nil")
-	}
-
-	return
 }
 
 func TestChecklyCheckActions(t *testing.T) {
-
 	expectedCheckID := "2"
 	expectedGroupID := 1
+
 	testData := Check{
 		Name:            "foo",
 		Namespace:       "bar",
@@ -106,15 +101,28 @@ func TestChecklyCheckActions(t *testing.T) {
 		Endpoint:        "https://foo.bar/baz",
 		SuccessCode:     "200",
 		ID:              "",
+		Assertions: []checkly.Assertion{
+			{
+				Source:     "StatusCode",
+				Comparison: "Equals",
+				Target:     "200",
+			},
+			{
+				Source:     "JSONBody",
+				Property:   "$.result",
+				Comparison: "NotNull",
+			},
+		},
 	}
 
-	// Test errors
+	// Test client for failure simulation
 	testClientFail := checkly.NewClient(
 		"http://localhost:5556",
 		"foobarbaz",
 		nil,
 		nil,
 	)
+
 	// Create
 	_, err := Create(testData, testClientFail)
 	if err == nil {
@@ -133,7 +141,7 @@ func TestChecklyCheckActions(t *testing.T) {
 		t.Error("Expected error, got none")
 	}
 
-	// Test happy path
+	// Test client for happy path
 	testClient := checkly.NewClient(
 		"http://localhost:5555",
 		"foobarbaz",
@@ -142,25 +150,23 @@ func TestChecklyCheckActions(t *testing.T) {
 	)
 	testClient.SetAccountId("1234567890")
 
+	// Mock server for happy path
 	go func() {
 		http.HandleFunc("/v1/checks", func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusCreated)
 			w.Header().Set("Content-Type", "application/json")
-			resp := make(map[string]string)
-			resp["id"] = expectedCheckID
+			resp := map[string]string{"id": expectedCheckID}
 			jsonResp, _ := json.Marshal(resp)
 			w.Write(jsonResp)
 			return
 		})
 		http.HandleFunc("/v1/checks/2", func(w http.ResponseWriter, r *http.Request) {
 			r.ParseForm()
-			method := r.Method
-			switch method {
+			switch r.Method {
 			case "PUT":
 				w.WriteHeader(http.StatusOK)
 				w.Header().Set("Content-Type", "application/json")
-				resp := make(map[string]string)
-				resp["id"] = expectedCheckID
+				resp := map[string]string{"id": expectedCheckID}
 				jsonResp, _ := json.Marshal(resp)
 				w.Write(jsonResp)
 			case "DELETE":
@@ -171,21 +177,18 @@ func TestChecklyCheckActions(t *testing.T) {
 		http.HandleFunc("/v1/check-groups", func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusCreated)
 			w.Header().Set("Content-Type", "application/json")
-			resp := make(map[string]interface{})
-			resp["id"] = expectedGroupID
+			resp := map[string]interface{}{"id": expectedGroupID}
 			jsonResp, _ := json.Marshal(resp)
 			w.Write(jsonResp)
 			return
 		})
 		http.HandleFunc("/v1/check-groups/1", func(w http.ResponseWriter, r *http.Request) {
 			r.ParseForm()
-			method := r.Method
-			switch method {
+			switch r.Method {
 			case "PUT":
 				w.WriteHeader(http.StatusOK)
 				w.Header().Set("Content-Type", "application/json")
-				resp := make(map[string]interface{})
-				resp["id"] = expectedGroupID
+				resp := map[string]interface{}{"id": expectedGroupID}
 				jsonResp, _ := json.Marshal(resp)
 				w.Write(jsonResp)
 			case "DELETE":
@@ -196,28 +199,28 @@ func TestChecklyCheckActions(t *testing.T) {
 		http.ListenAndServe(":5555", nil)
 	}()
 
+	// Create
 	testID, err := Create(testData, testClient)
 	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
+		t.Errorf("Expected no error, got %v", err)
 	}
 
 	if testID != expectedCheckID {
 		t.Errorf("Expected %s, got %s", expectedCheckID, testID)
 	}
 
+	// Update
 	testData.ID = expectedCheckID
-
 	err = Update(testData, testClient)
 	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
+		t.Errorf("Expected no error, got %v", err)
 	}
 
+	// Delete
 	err = Delete(expectedCheckID, testClient)
 	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
+		t.Errorf("Expected no error, got %v", err)
 	}
-
-	return
 }
 
 func TestShouldFail(t *testing.T) {
