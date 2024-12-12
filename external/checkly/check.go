@@ -27,7 +27,7 @@ import (
 	"github.com/checkly/checkly-go-sdk"
 )
 
-// Check struct for internal packages to help put together the checkly check
+// Check is a struct for the internal packages to help put together the checkly check
 type Check struct {
 	Name            string
 	Namespace       string
@@ -46,17 +46,15 @@ type Check struct {
 }
 
 func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
-	// Ensure `shouldFail` logic is handled
+
 	shouldFail, err := shouldFail(apiCheck.SuccessCode)
 	if err != nil {
 		return
 	}
 
-	// Map tags from labels and namespace
 	tags := getTags(apiCheck.Labels)
 	tags = append(tags, "checkly-operator", apiCheck.Namespace)
 
-	// Define alert settings
 	alertSettings := checkly.AlertSettings{
 		EscalationType: checkly.RunBased,
 		RunBasedEscalation: checkly.RunBasedEscalation{
@@ -74,7 +72,6 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		},
 	}
 
-	// Default assertion logic: If no assertions are provided, add a default
 	assertions := apiCheck.Assertions
 	if len(assertions) == 0 {
 		assertions = []checkly.Assertion{
@@ -86,20 +83,17 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		}
 	}
 
-	// Determine the HTTP method; default to GET if not specified
 	method := http.MethodGet
 	if apiCheck.Method != "" {
 		method = apiCheck.Method
 	}
 
-	// Determine the body type and body; default to empty if not specified
 	body := apiCheck.Body
 	bodyType := apiCheck.BodyType
 	if bodyType == "" {
-		bodyType = "NONE" // Default body type
+		bodyType = "NONE"
 	}
 
-	// Reformat the body if BodyType is JSON
 	if bodyType == "json" {
 		var jsonBody map[string]interface{}
 		err := json.Unmarshal([]byte(body), &jsonBody)
@@ -115,7 +109,6 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		body = string(formattedBody)
 	}
 
-	// Create the Checkly API check structure
 	check = checkly.Check{
 		Name:                 apiCheck.Name,
 		Type:                 checkly.TypeAPI,

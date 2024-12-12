@@ -11,7 +11,7 @@ We can also create API Checks from `ingress` resources, see [ingress](ingress.md
 
 ## Configuration options
 
-The name of the API check derives from the `metadata.name` of the created Kubernetes resource.
+The name of the API check derives from the `metadata.name` of the created kubernetes resource.
 
 ### Labels
 

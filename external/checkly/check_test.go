@@ -112,9 +112,9 @@ func TestChecklyCheck(t *testing.T) {
 }
 
 func TestChecklyCheckActions(t *testing.T) {
+
 	expectedCheckID := "2"
 	expectedGroupID := 1
-
 	testData := Check{
 		Name:            "foo",
 		Namespace:       "bar",
@@ -140,13 +140,13 @@ func TestChecklyCheckActions(t *testing.T) {
 		},
 	}
 
+	// Test errors
 	testClientFail := checkly.NewClient(
 		"http://localhost:5556",
 		"foobarbaz",
 		nil,
 		nil,
 	)
-
 	// Create
 	_, err := Create(testData, testClientFail)
 	if err == nil {
@@ -165,7 +165,7 @@ func TestChecklyCheckActions(t *testing.T) {
 		t.Error("Expected error, got none")
 	}
 
-	// Test client for happy path
+	// Test happy path
 	testClient := checkly.NewClient(
 		"http://localhost:5555",
 		"foobarbaz",
@@ -174,7 +174,6 @@ func TestChecklyCheckActions(t *testing.T) {
 	)
 	testClient.SetAccountId("1234567890")
 
-	// Mock server for happy path
 	go func() {
 		http.HandleFunc("/v1/checks", func(w http.ResponseWriter, _ *http.Request) {
 			w.WriteHeader(http.StatusCreated)
@@ -223,7 +222,6 @@ func TestChecklyCheckActions(t *testing.T) {
 		http.ListenAndServe(":5555", nil)
 	}()
 
-	// Create
 	testID, err := Create(testData, testClient)
 	if err != nil {
 		t.Errorf("Expected no error, got %v", err)
@@ -233,17 +231,15 @@ func TestChecklyCheckActions(t *testing.T) {
 		t.Errorf("Expected %s, got %s", expectedCheckID, testID)
 	}
 
-	// Update
 	testData.ID = expectedCheckID
 	err = Update(testData, testClient)
 	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+		t.Errorf("Expected no error, got %e", err)
 	}
 
-	// Delete
 	err = Delete(expectedCheckID, testClient)
 	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+		t.Errorf("Expected no error, got %e", err)
 	}
 }
 
@@ -262,7 +258,7 @@ func TestShouldFail(t *testing.T) {
 
 	testResponse, err = shouldFail(testFalse)
 	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+		t.Errorf("Expected no error, got %e", err)
 	}
 	if testResponse != false {
 		t.Errorf("Expected false, got %t", testResponse)

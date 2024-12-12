@@ -33,7 +33,7 @@ import (
 	external "github.com/checkly/checkly-operator/external/checkly"
 )
 
-// ApiCheckReconciler reconciles an ApiCheck object
+// ApiCheckReconciler reconciles a ApiCheck object
 type ApiCheckReconciler struct {
 	client.Client
 	Scheme           *runtime.Scheme
@@ -129,6 +129,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{Requeue: true}, nil
 	}
 
+	// Create internal Check type
 	internalCheck := external.Check{
 		Name:            apiCheck.Name,
 		Namespace:       apiCheck.Namespace,

@@ -20,7 +20,8 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Assertion defines a single validation condition for the API check
+// EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+// NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 type Assertion struct {
 	// Source of the assertion (e.g., STATUS_CODE, JSON_BODY, etc.)
 	Source string `json:"source"`
@@ -37,14 +38,11 @@ type Assertion struct {
 
 // ApiCheckSpec defines the desired state of ApiCheck
 type ApiCheckSpec struct {
-	// Endpoint determines which URL to monitor, e.g., https://foo.bar/baz
-	Endpoint string `json:"endpoint"`
+	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
 
-	// Frequency determines the frequency of the checks in minutes, default 5
+	// Frequency is used to determine the frequency of the checks in minutes, default 5
 	Frequency int `json:"frequency,omitempty"`
-
-	// Group determines in which group the check belongs
-	Group string `json:"group"`
 
 	// MaxResponseTime determines the maximum number of milliseconds
 	// that can pass before the check fails, default 15000
@@ -53,11 +51,17 @@ type ApiCheckSpec struct {
 	// Muted determines if the created alert is muted or not, default false
 	Muted bool `json:"muted,omitempty"`
 
-	// Success determines the expected HTTP status code, e.g., 200
+	// Endpoint determines which URL to monitor, ex. https://foo.bar/baz
+	Endpoint string `json:"endpoint"`
+
+	// Success determines the returned success code, ex. 200
 	Success string `json:"success"`
 
 	// Method defines the HTTP method to use for the check, e.g., GET, POST, PUT (default is GET)
 	Method string `json:"method,omitempty"`
+
+	// Group determines in which group does the check belong to
+	Group string `json:"group"`
 
 	// Body defines the request payload for the check
 	Body string `json:"body,omitempty"`
@@ -71,6 +75,9 @@ type ApiCheckSpec struct {
 
 // ApiCheckStatus defines the observed state of ApiCheck
 type ApiCheckStatus struct {
+	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
+	// Important: Run "make" to regenerate code after modifying this file
+
 	// ID holds the checklyhq.com internal ID of the check
 	ID string `json:"id"`
 
