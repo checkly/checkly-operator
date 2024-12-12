@@ -44,10 +44,6 @@ type ApiCheckSpec struct {
 	// Frequency is used to determine the frequency of the checks in minutes, default 5
 	Frequency int `json:"frequency,omitempty"`
 
-	// MaxResponseTime determines the maximum number of milliseconds
-	// that can pass before the check fails, default 15000
-	MaxResponseTime int `json:"maxresponsetime,omitempty"`
-
 	// Muted determines if the created alert is muted or not, default false
 	Muted bool `json:"muted,omitempty"`
 
@@ -56,6 +52,9 @@ type ApiCheckSpec struct {
 
 	// Success determines the returned success code, ex. 200
 	Success string `json:"success"`
+
+	// MaxResponseTime determines what the maximum number of miliseconds can pass before the check fails, default 15000
+	MaxResponseTime int `json:"maxresponsetime,omitempty"`
 
 	// Method defines the HTTP method to use for the check, e.g., GET, POST, PUT (default is GET)
 	Method string `json:"method,omitempty"`

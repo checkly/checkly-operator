@@ -224,7 +224,7 @@ func TestChecklyCheckActions(t *testing.T) {
 
 	testID, err := Create(testData, testClient)
 	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+		t.Errorf("Expected no error, got %e", err)
 	}
 
 	if testID != expectedCheckID {
@@ -241,6 +241,8 @@ func TestChecklyCheckActions(t *testing.T) {
 	if err != nil {
 		t.Errorf("Expected no error, got %e", err)
 	}
+
+	return
 }
 
 func TestShouldFail(t *testing.T) {
@@ -250,7 +252,7 @@ func TestShouldFail(t *testing.T) {
 
 	testResponse, err := shouldFail(testTrue)
 	if err != nil {
-		t.Errorf("Expected no error, got %v", err)
+		t.Errorf("Expected no error, got %e", err)
 	}
 	if testResponse != true {
 		t.Errorf("Expected true, got %t", testResponse)

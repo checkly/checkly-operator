@@ -90,7 +90,7 @@ spec:
                   e.g., json, graphql, raw data (default is NONE)
                 type: string
               endpoint:
-                description: Endpoint determines which URL to monitor, e.g., https://foo.bar/baz
+                description: Endpoint determines which URL to monitor, ex. https://foo.bar/baz
                 type: string
               frequency:
                 description: Frequency is used to determine the frequency of the checks
