@@ -60,8 +60,9 @@ spec:
               assertions:
                 description: Assertions define the validation conditions for the check
                 items:
-                  description: Assertion defines a single validation condition for
-                    the API check
+                  description: |-
+                    EDIT THIS FILE!  THIS IS SCAFFOLDING FOR YOU TO OWN!
+                    NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
                   properties:
                     comparison:
                       description: Comparison operation (e.g., EQUALS, NOT_NULL, etc.)

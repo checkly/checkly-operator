@@ -19,9 +19,9 @@ package external
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/checkly/checkly-go-sdk"
