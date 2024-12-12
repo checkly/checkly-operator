@@ -59,15 +59,18 @@ type ApiCheckSpec struct {
 	// Method defines the HTTP method to use for the check, e.g., GET, POST, PUT (default is GET)
 	Method string `json:"method,omitempty"`
 
+	// Body defines the request payload for the check
+	Body string `json:"body,omitempty"`
+
+	// BodyType specifies the format of the request payload, e.g., json, graphql, raw data (default is NONE)
+	BodyType string `json:"bodyType,omitempty"`
+
 	// Assertions define the validation conditions for the check
 	Assertions []Assertion `json:"assertions,omitempty"`
 }
 
 // ApiCheckStatus defines the observed state of ApiCheck
 type ApiCheckStatus struct {
-	// INSERT ADDITIONAL STATUS FIELD - define observed state of cluster
-	// Important: Run "make" to regenerate code after modifying this file
-
 	// ID holds the checklyhq.com internal ID of the check
 	ID string `json:"id"`
 

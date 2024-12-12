@@ -48,7 +48,7 @@ var _ = Describe("ApiCheck Controller", func() {
 	})
 
 	Context("ApiCheck", func() {
-		It("Full reconciliation with assertions and method", func() {
+		It("Full reconciliation with body and body type", func() {
 
 			key := types.NamespacedName{
 				Name:      "test-apicheck",
@@ -76,6 +76,8 @@ var _ = Describe("ApiCheck Controller", func() {
 					Group:    groupKey.Name,
 					Muted:    true,
 					Method:   "POST",
+					Body:     `{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}`,
+					BodyType: "json",
 					Assertions: []checklyv1alpha1.Assertion{
 						{
 							Source:     "STATUS_CODE",
@@ -106,7 +108,7 @@ var _ = Describe("ApiCheck Controller", func() {
 			}, timeout, interval).Should(BeTrue())
 
 			// Status.ID should be present
-			By("Expecting group ID, method, and assertions")
+			By("Expecting group ID, method, body, body type, and assertions")
 			Eventually(func() bool {
 				f := &checklyv1alpha1.ApiCheck{}
 				err := k8sClient.Get(context.Background(), key, f)
@@ -119,6 +121,14 @@ var _ = Describe("ApiCheck Controller", func() {
 				}
 
 				if f.Spec.Method != "POST" {
+					return false
+				}
+
+				if f.Spec.Body != `{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}` {
+					return false
+				}
+
+				if f.Spec.BodyType != "json" {
 					return false
 				}
 

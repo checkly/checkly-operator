@@ -18,14 +18,16 @@ package external
 
 import (
 	"context"
+	"encoding/json"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/checkly/checkly-go-sdk"
 )
 
-// Check is a struct for the internal packages to help put together the checkly check
+// Check struct for internal packages to help put together the checkly check
 type Check struct {
 	Name            string
 	Namespace       string
@@ -37,8 +39,10 @@ type Check struct {
 	ID              string
 	Muted           bool
 	Labels          map[string]string
-	Assertions      []checkly.Assertion // Align with checkly's Assertion struct
-	Method          string              // HTTP method to use for the check
+	Assertions      []checkly.Assertion
+	Method          string
+	Body            string
+	BodyType        string
 }
 
 func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
@@ -88,6 +92,29 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		method = apiCheck.Method
 	}
 
+	// Determine the body type and body; default to empty if not specified
+	body := apiCheck.Body
+	bodyType := apiCheck.BodyType
+	if bodyType == "" {
+		bodyType = "NONE" // Default body type
+	}
+
+	// Reformat the body if BodyType is JSON
+	if bodyType == "json" {
+		var jsonBody map[string]interface{}
+		err := json.Unmarshal([]byte(body), &jsonBody)
+		if err != nil {
+			return check, fmt.Errorf("invalid JSON body: %w", err)
+		}
+
+		formattedBody, err := json.Marshal(jsonBody)
+		if err != nil {
+			return check, fmt.Errorf("failed to format JSON body: %w", err)
+		}
+
+		body = string(formattedBody)
+	}
+
 	// Create the Checkly API check structure
 	check = checkly.Check{
 		Name:                 apiCheck.Name,
@@ -109,8 +136,8 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 			Assertions:      assertions,
 			Headers:         []checkly.KeyValue{},
 			QueryParameters: []checkly.KeyValue{},
-			Body:            "",
-			BodyType:        "NONE",
+			Body:            body,
+			BodyType:        bodyType,
 		},
 		UseGlobalAlertSettings: false,
 		GroupID:                apiCheck.GroupID,

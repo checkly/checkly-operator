@@ -129,7 +129,6 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		return ctrl.Result{Requeue: true}, nil
 	}
 
-	// Pass through method field without defaulting
 	internalCheck := external.Check{
 		Name:            apiCheck.Name,
 		Namespace:       apiCheck.Namespace,
@@ -142,7 +141,9 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		Muted:           apiCheck.Spec.Muted,
 		Labels:          apiCheck.Labels,
 		Assertions:      r.mapAssertions(apiCheck.Spec.Assertions),
-		Method:          apiCheck.Spec.Method, // Pass the method field directly
+		Method:          apiCheck.Spec.Method,
+		Body:            apiCheck.Spec.Body,
+		BodyType:        apiCheck.Spec.BodyType,
 	}
 
 	// /////////////////////////////

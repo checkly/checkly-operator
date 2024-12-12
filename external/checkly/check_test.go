@@ -34,6 +34,8 @@ func TestChecklyCheck(t *testing.T) {
 		SuccessCode:     "403",
 		Muted:           true,
 		Method:          "POST",
+		Body:            `{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}`,
+		BodyType:        "json",
 		Assertions: []checkly.Assertion{
 			{
 				Source:     "JSONBody",
@@ -85,6 +87,21 @@ func TestChecklyCheck(t *testing.T) {
 		t.Errorf("Expected Method %s, got %s", data.Method, testData.Request.Method)
 	}
 
+	if testData.Request.BodyType != data.BodyType {
+		t.Errorf("Expected BodyType %s, got %s", data.BodyType, testData.Request.BodyType)
+	}
+
+	expectedBody := `{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}`
+	var expectedBodyFormatted map[string]interface{}
+	json.Unmarshal([]byte(expectedBody), &expectedBodyFormatted)
+
+	var actualBodyFormatted map[string]interface{}
+	json.Unmarshal([]byte(testData.Request.Body), &actualBodyFormatted)
+
+	if !equalJSON(expectedBodyFormatted, actualBodyFormatted) {
+		t.Errorf("Expected Body %v, got %v", expectedBodyFormatted, actualBodyFormatted)
+	}
+
 	if testData.Muted != data.Muted {
 		t.Errorf("Expected %t, got %t", data.Muted, testData.Muted)
 	}
@@ -106,6 +123,8 @@ func TestChecklyCheckActions(t *testing.T) {
 		Endpoint:        "https://foo.bar/baz",
 		SuccessCode:     "200",
 		Method:          "PUT",
+		Body:            `{"query":"query { status }"}`,
+		BodyType:        "graphql",
 		ID:              "",
 		Assertions: []checkly.Assertion{
 			{
@@ -121,7 +140,6 @@ func TestChecklyCheckActions(t *testing.T) {
 		},
 	}
 
-	// Test client for failure simulation
 	testClientFail := checkly.NewClient(
 		"http://localhost:5556",
 		"foobarbaz",
@@ -254,4 +272,10 @@ func TestShouldFail(t *testing.T) {
 	if err == nil {
 		t.Errorf("Expected error, got none")
 	}
+}
+
+func equalJSON(expected, actual map[string]interface{}) bool {
+	expectedBytes, _ := json.Marshal(expected)
+	actualBytes, _ := json.Marshal(actual)
+	return string(expectedBytes) == string(actualBytes)
 }

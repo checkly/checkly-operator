@@ -82,6 +82,13 @@ spec:
                   - source
                   type: object
                 type: array
+              body:
+                description: Body defines the request payload for the check
+                type: string
+              bodyType:
+                description: BodyType specifies the format of the request payload,
+                  e.g., json, graphql, raw data (default is NONE)
+                type: string
               endpoint:
                 description: Endpoint determines which URL to monitor, e.g., https://foo.bar/baz
                 type: string
