@@ -51,7 +51,7 @@ type ApiCheckSpec struct {
 	Endpoint string `json:"endpoint"`
 
 	// Success determines the returned success code, ex. 200
-	Success string `json:"success"`
+	Success string `json:"success,omitempty"`
 
 	// MaxResponseTime determines what the maximum number of miliseconds can pass before the check fails, default 15000
 	MaxResponseTime int `json:"maxresponsetime,omitempty"`

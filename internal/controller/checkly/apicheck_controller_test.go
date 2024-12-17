@@ -76,7 +76,6 @@ var _ = Describe("ApiCheck Controller", func() {
 				},
 				Spec: checklyv1alpha1.ApiCheckSpec{
 					Endpoint: "http://bar.baz/quoz",
-					Success:  "200",
 					Group:    groupKey.Name,
 					Muted:    true,
 					Method:   "POST",
