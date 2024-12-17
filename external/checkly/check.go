@@ -21,7 +21,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"strconv"
+	"strings"
 	"time"
 
 	"github.com/checkly/checkly-go-sdk"
@@ -34,7 +34,6 @@ type Check struct {
 	Frequency       int
 	MaxResponseTime int
 	Endpoint        string
-	SuccessCode     string
 	GroupID         int64
 	ID              string
 	Muted           bool
@@ -46,11 +45,6 @@ type Check struct {
 }
 
 func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
-
-	shouldFail, err := shouldFail(apiCheck.SuccessCode)
-	if err != nil {
-		return
-	}
 
 	tags := getTags(apiCheck.Labels)
 	tags = append(tags, "checkly-operator", apiCheck.Namespace)
@@ -72,14 +66,22 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 		},
 	}
 
+	shouldFail := false
 	assertions := apiCheck.Assertions
 	if len(assertions) == 0 {
 		assertions = []checkly.Assertion{
 			{
 				Source:     checkly.StatusCode,
 				Comparison: checkly.Equals,
-				Target:     apiCheck.SuccessCode,
+				Target:     "200",
 			},
+		}
+	} else {
+		for _, assertion := range assertions {
+			if assertion.Source == checkly.StatusCode && assertion.Comparison == checkly.Equals && assertion.Target >= "400" {
+				shouldFail = true
+				break
+			}
 		}
 	}
 
@@ -89,12 +91,12 @@ func checklyCheck(apiCheck Check) (check checkly.Check, err error) {
 	}
 
 	body := apiCheck.Body
-	bodyType := apiCheck.BodyType
+	bodyType := strings.ToUpper(apiCheck.BodyType)
 	if bodyType == "" {
 		bodyType = "NONE"
 	}
 
-	if bodyType == "json" {
+	if bodyType == "JSON" {
 		var jsonBody map[string]interface{}
 		err := json.Unmarshal([]byte(body), &jsonBody)
 		if err != nil {
@@ -185,16 +187,4 @@ func Delete(ID string, client checkly.Client) (err error) {
 	err = client.Delete(ctx, ID)
 
 	return
-}
-
-func shouldFail(successCode string) (bool, error) {
-	code, err := strconv.Atoi(successCode)
-	if err != nil {
-		return false, err
-	}
-	if code < 400 {
-		return false, nil
-	} else {
-		return true, nil
-	}
 }

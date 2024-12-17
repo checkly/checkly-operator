@@ -31,11 +31,10 @@ func TestChecklyCheck(t *testing.T) {
 		Frequency:       15,
 		MaxResponseTime: 2000,
 		Endpoint:        "https://foo.bar/baz",
-		SuccessCode:     "403",
 		Muted:           true,
 		Method:          "POST",
 		Body:            `{"jsonrpc":"2.0","method":"eth_syncing","params":[],"id":1}`,
-		BodyType:        "json",
+		BodyType:        "JSON",
 		Assertions: []checkly.Assertion{
 			{
 				Source:     "JSONBody",
@@ -106,9 +105,6 @@ func TestChecklyCheck(t *testing.T) {
 		t.Errorf("Expected %t, got %t", data.Muted, testData.Muted)
 	}
 
-	if testData.ShouldFail != true {
-		t.Errorf("Expected true for ShouldFail, got false")
-	}
 }
 
 func TestChecklyCheckActions(t *testing.T) {
@@ -121,7 +117,6 @@ func TestChecklyCheckActions(t *testing.T) {
 		Frequency:       15,
 		MaxResponseTime: 2000,
 		Endpoint:        "https://foo.bar/baz",
-		SuccessCode:     "200",
 		Method:          "PUT",
 		Body:            `{"query":"query { status }"}`,
 		BodyType:        "graphql",
@@ -243,33 +238,6 @@ func TestChecklyCheckActions(t *testing.T) {
 	}
 
 	return
-}
-
-func TestShouldFail(t *testing.T) {
-	testTrue := "401"
-	testFalse := "200"
-	testErr := "foo"
-
-	testResponse, err := shouldFail(testTrue)
-	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
-	}
-	if testResponse != true {
-		t.Errorf("Expected true, got %t", testResponse)
-	}
-
-	testResponse, err = shouldFail(testFalse)
-	if err != nil {
-		t.Errorf("Expected no error, got %e", err)
-	}
-	if testResponse != false {
-		t.Errorf("Expected false, got %t", testResponse)
-	}
-
-	_, err = shouldFail(testErr)
-	if err == nil {
-		t.Errorf("Expected error, got none")
-	}
 }
 
 func equalJSON(expected, actual map[string]interface{}) bool {

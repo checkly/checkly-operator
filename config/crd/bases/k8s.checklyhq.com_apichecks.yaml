@@ -19,10 +19,6 @@ spec:
       jsonPath: .spec.endpoint
       name: Endpoint
       type: string
-    - description: Expected status code
-      jsonPath: .spec.success
-      name: Status code
-      type: string
     - jsonPath: .spec.muted
       name: Muted
       type: boolean
@@ -113,13 +109,9 @@ spec:
                 description: Muted determines if the created alert is muted or not,
                   default false
                 type: boolean
-              success:
-                description: Success determines the returned success code, ex. 200
-                type: string
             required:
             - endpoint
             - group
-            - success
             type: object
           status:
             description: ApiCheckStatus defines the observed state of ApiCheck
