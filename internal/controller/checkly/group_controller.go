@@ -19,6 +19,7 @@ package checkly
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -136,6 +137,13 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 				ChannelID: ac.Status.ID,
 				Activated: true,
 			})
+		}
+	}
+
+	// Iterate and remove keys ending with "/argo-app"
+	for key := range group.Labels {
+		if strings.HasSuffix(key, "/argo-app") {
+			delete(group.Labels, key)
 		}
 	}
 

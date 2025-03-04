@@ -19,6 +19,7 @@ package checkly
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -136,6 +137,13 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	if group.Status.ID == 0 {
 		logger.V(1).Info("Group ID has not been populated, we're too quick, requeuing for retry", "group name", apiCheck.Spec.Group)
 		return ctrl.Result{Requeue: true}, nil
+	}
+
+	// Iterate and remove keys ending with "/argo-app"
+	for key := range apiCheck.Labels {
+		if strings.HasSuffix(key, "/argo-app") {
+			delete(apiCheck.Labels, key)
+		}
 	}
 
 	// Create internal Check type
