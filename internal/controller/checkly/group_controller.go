@@ -141,10 +141,11 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	}
 
 	// Iterate and remove keys ending with "/argo-app"
-	for key := range group.Labels {
-		if strings.HasSuffix(key, "/argo-app") {
-			delete(group.Labels, key)
-		}
+	newLabels := make(map[string]string)
+	for key, value := range group.Labels {
+	    if !strings.Contains(key, "/argo-app") {
+	        newLabels[key] = value
+	    }
 	}
 
 	// Create internal Check type
@@ -154,7 +155,7 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 		Locations:     group.Spec.Locations,
 		AlertChannels: alertChannels,
 		ID:            group.Status.ID,
-		Labels:        group.Labels,
+		Labels:        newLabels,
 	}
 
 	// /////////////////////////////

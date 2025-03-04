@@ -140,6 +140,14 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 	}
 
 	// Iterate and remove keys ending with "/argo-app"
+	newLabels := make(map[string]string)
+	for key, value := range apiCheck.Labels {
+	    if !strings.Contains(key, "/argo-app") {
+	        newLabels[key] = value
+	    }
+	}
+
+	// Iterate and remove keys ending with "/argo-app"
 	for key := range apiCheck.Labels {
 		if strings.HasSuffix(key, "/argo-app") {
 			delete(apiCheck.Labels, key)
@@ -156,7 +164,7 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 		ID:              apiCheck.Status.ID,
 		GroupID:         group.Status.ID,
 		Muted:           apiCheck.Spec.Muted,
-		Labels:          apiCheck.Labels,
+		Labels:          newLabels,
 		Assertions:      r.mapAssertions(apiCheck.Spec.Assertions),
 		Method:          apiCheck.Spec.Method,
 		Body:            apiCheck.Spec.Body,
