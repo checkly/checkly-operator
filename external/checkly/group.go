@@ -24,12 +24,13 @@ import (
 )
 
 type Group struct {
-	Name          string
-	ID            int64
-	Locations     []string
-	Activated     bool
-	AlertChannels []checkly.AlertChannelSubscription
-	Labels        map[string]string
+	Name             string
+	ID               int64
+	Locations        []string
+	PrivateLocations []string
+	Activated        bool
+	AlertChannels    []checkly.AlertChannelSubscription
+	Labels           map[string]string
 }
 
 func checklyGroup(group Group) (check checkly.Group) {
@@ -54,6 +55,12 @@ func checklyGroup(group Group) (check checkly.Group) {
 		},
 	}
 
+	locations := []string{}
+
+	if len(group.PrivateLocations) != 0 {
+		checkValueArray(group.Locations, []string{"eu-west-1"})
+	}
+
 	check = checkly.Group{
 		Name:                      group.Name,
 		Activated:                 true,
@@ -62,7 +69,8 @@ func checklyGroup(group Group) (check checkly.Group) {
 		LocalSetupScript:          "",
 		LocalTearDownScript:       "",
 		Concurrency:               2,
-		Locations:                 checkValueArray(group.Locations, []string{"eu-west-1"}),
+		Locations:                 locations,
+		PrivateLocations:          &group.PrivateLocations,
 		Tags:                      tags,
 		AlertSettings:             alertSettings,
 		UseGlobalAlertSettings:    false,
