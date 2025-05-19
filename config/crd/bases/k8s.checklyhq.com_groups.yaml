@@ -55,6 +55,13 @@ spec:
                 description: Activated determines if the created group is muted or
                   not, default false
                 type: boolean
+              privateLocations:
+                description: Locations determines the locations where the checks are
+                  run from, see https://www.checklyhq.com/docs/monitoring/global-locations/
+                  for a list, use AWS Region codes, ex. eu-west-1 for Ireland
+                items:
+                  type: string
+                type: array
             type: object
           status:
             description: GroupStatus defines the observed state of Group
