@@ -15,57 +15,7 @@ rules:
   - k8s.checklyhq.com
   resources:
   - alertchannels
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - k8s.checklyhq.com
-  resources:
-  - alertchannels/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - k8s.checklyhq.com
-  resources:
-  - alertchannels/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - k8s.checklyhq.com
-  resources:
   - apichecks
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - k8s.checklyhq.com
-  resources:
-  - apichecks/finalizers
-  verbs:
-  - update
-- apiGroups:
-  - k8s.checklyhq.com
-  resources:
-  - apichecks/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - k8s.checklyhq.com
-  resources:
   - groups
   verbs:
   - create
@@ -78,12 +28,16 @@ rules:
 - apiGroups:
   - k8s.checklyhq.com
   resources:
+  - alertchannels/finalizers
+  - apichecks/finalizers
   - groups/finalizers
   verbs:
   - update
 - apiGroups:
   - k8s.checklyhq.com
   resources:
+  - alertchannels/status
+  - apichecks/status
   - groups/status
   verbs:
   - get
