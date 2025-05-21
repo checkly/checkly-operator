@@ -69,4 +69,4 @@ We're using the following versions of packages:
 * operator-sdk 1.39.2
 * golang 1.23
 
-Tested with K8s `v1.29`.
+Tested with K8s `v1.31.2`.
