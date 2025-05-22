@@ -302,8 +302,7 @@ func (r *IngressReconciler) compareApiChecks(
 	logger := log.FromContext(ctx)
 
 	var existingApiChecks checklyv1alpha1.ApiCheckList
-	labels := make(map[string]*string)
-	labels["ingress-controller"] = &ingress.Name
+
 	err = r.List(ctx, &existingApiChecks, client.InNamespace(ingress.Namespace), client.MatchingLabels{"ingress-controller": ingress.Name})
 	if err != nil {
 		return
