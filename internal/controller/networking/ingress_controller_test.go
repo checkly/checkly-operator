@@ -73,7 +73,7 @@ var _ = Describe("Ingress Controller", func() {
 				IngressRuleValue: networkingv1.IngressRuleValue{
 					HTTP: &networkingv1.HTTPIngressRuleValue{
 						Paths: []networkingv1.HTTPIngressPath{
-							networkingv1.HTTPIngressPath{
+							{
 								Path:     fmt.Sprintf("/%s", testPath),
 								PathType: &pathTypeImplementationSpecific,
 								Backend: networkingv1.IngressBackend{
