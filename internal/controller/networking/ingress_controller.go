@@ -323,7 +323,7 @@ func (r *IngressReconciler) compareApiChecks(
 			} else {
 				logger.Info(
 					"ApiCheck data is not identical, update needed", "ApiCheck Name", existingApiCheck.Name, "old spec", existingApiCheck.Spec, "new spec", newApiCheck.Spec)
-				updateApiChecks = append(updateApiChecks, newApiChecksMap[existingApiCheck.Name])
+				updateApiChecks = append(updateApiChecks, newApiCheck)
 			}
 
 			// Remove items from new api checks map
