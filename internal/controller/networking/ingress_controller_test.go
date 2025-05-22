@@ -138,6 +138,45 @@ var _ = Describe("Ingress Controller", func() {
 				return true
 			}, timeout, interval).Should(BeTrue(), "Timed out waiting for success")
 
+			// Update path and use annotation
+			By("Expecting path to update successfully")
+			Eventually(func() error {
+				// Get existing ingress object
+				f := &networkingv1.Ingress{}
+				err := k8sClient.Get(context.Background(), ingressKey, f)
+				if err != nil {
+					return err
+				}
+
+				newPath := "new-path"
+				// Update annotations with new path
+				f.Annotations["testing.domain.tld/path"] = newPath
+				err = k8sClient.Update(context.Background(), f)
+				if err != nil {
+					return err
+				}
+				u := &networkingv1.Ingress{}
+				err = k8sClient.Get(context.Background(), ingressKey, u)
+				if err != nil {
+					return err
+				}
+				Expect(u.Annotations["testing.domain.tld/path"]).To(Equal("new-path"), "Path annotation should be updated")
+
+				apiCheckKeyNewPath := types.NamespacedName{
+					Name:      fmt.Sprintf("%s-%s-%s", "test-ingress", "foobar", newPath),
+					Namespace: "default",
+				}
+				// Expect API Check to be updated
+				f2 := &checklyv1alpha1.ApiCheck{}
+				err = k8sClient.Get(context.Background(), apiCheckKeyNewPath, f2)
+				if err != nil {
+					return err
+				}
+				Expect(f2.Spec.Endpoint).To(Equal(fmt.Sprintf("https://%s/%s", testHost, newPath)), "Endpoint should be updated")
+
+				return nil
+			}, timeout, interval).Should(Succeed(), "Timeout waiting for update")
+
 			// Set enabled false
 			By("Expecting enabled false to remove ApiCheck")
 			Eventually(func() error {

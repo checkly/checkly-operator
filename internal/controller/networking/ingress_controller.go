@@ -229,20 +229,16 @@ func (r *IngressReconciler) gatherApiCheckData(
 		// Get the path(s)
 		var paths []string
 
-		if rule.HTTP == nil { // HTTP may not exist
-			paths = append(paths, "/")
-		} else if rule.HTTP.Paths == nil { // Paths may not exist
+		if value, exists := ingress.Annotations[annotationPath]; exists {
+			paths = append(paths, value)
+		} else if rule.HTTP == nil || rule.HTTP.Paths == nil {
 			paths = append(paths, "/")
 		} else {
 			for _, rulePath := range rule.HTTP.Paths {
-				if ingress.Annotations[annotationPath] == "" {
-					if rulePath.Path == "" {
-						paths = append(paths, "/")
-					} else {
-						paths = append(paths, rulePath.Path)
-					}
+				if rulePath.Path == "" {
+					paths = append(paths, "/")
 				} else {
-					paths = append(paths, ingress.Annotations[annotationPath])
+					paths = append(paths, rulePath.Path)
 				}
 			}
 		}
