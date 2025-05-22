@@ -31,6 +31,9 @@ type GroupSpec struct {
 	// Locations determines the locations where the checks are run from, see https://www.checklyhq.com/docs/monitoring/global-locations/ for a list, use AWS Region codes, ex. eu-west-1 for Ireland
 	Locations []string `json:"locations,omitempty"`
 
+	// Locations determines the locations where the checks are run from, see https://www.checklyhq.com/docs/monitoring/global-locations/ for a list, use AWS Region codes, ex. eu-west-1 for Ireland
+	PrivateLocations []string `json:"privateLocations,omitempty"`
+
 	// Activated determines if the created group is muted or not, default false
 	Activated bool `json:"muted,omitempty"`
 

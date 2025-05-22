@@ -3,7 +3,7 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.14.0
+    controller-gen.kubebuilder.io/version: v0.16.1
   name: groups.k8s.checklyhq.com
 spec:
   group: k8s.checklyhq.com
@@ -55,6 +55,13 @@ spec:
                 description: Activated determines if the created group is muted or
                   not, default false
                 type: boolean
+              privateLocations:
+                description: Locations determines the locations where the checks are
+                  run from, see https://www.checklyhq.com/docs/monitoring/global-locations/
+                  for a list, use AWS Region codes, ex. eu-west-1 for Ireland
+                items:
+                  type: string
+                type: array
             type: object
           status:
             description: GroupStatus defines the observed state of Group

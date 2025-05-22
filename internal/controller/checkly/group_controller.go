@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/checkly/checkly-go-sdk"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -28,7 +29,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
 
-	"github.com/checkly/checkly-go-sdk"
 	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
 	external "github.com/checkly/checkly-operator/external/checkly"
 )
@@ -141,12 +141,13 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 
 	// Create internal Check type
 	internalCheck := external.Group{
-		Name:          group.Name,
-		Activated:     group.Spec.Activated,
-		Locations:     group.Spec.Locations,
-		AlertChannels: alertChannels,
-		ID:            group.Status.ID,
-		Labels:        group.Labels,
+		Name:             group.Name,
+		Activated:        group.Spec.Activated,
+		Locations:        group.Spec.Locations,
+		PrivateLocations: group.Spec.PrivateLocations,
+		AlertChannels:    alertChannels,
+		ID:               group.Status.ID,
+		Labels:           group.Labels,
 	}
 
 	// /////////////////////////////
