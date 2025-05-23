@@ -32,6 +32,8 @@ spec:
         - /manager
         args:
         - --leader-elect
+        - --health-probe-bind-address=:8081
+        - --metrics-secure=false
         - --controller-domain=k8s.checklyhq.com
         - --zap-log-level=info
         image: controller:latest

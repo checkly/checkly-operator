@@ -1,4 +1,5 @@
 resources:
-- monitor.yaml
+- allow-webhook-traffic.yaml
+- allow-metrics-traffic.yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
