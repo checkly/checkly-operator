@@ -30,7 +30,7 @@
       [
         "@semantic-release/exec",
         {
-          "prepareCmd": "VERSION=${nextRelease.version} make dry-run"
+          "prepareCmd": "VERSION=${nextRelease.version} make build-installer"
         }
       ],
       [
@@ -38,7 +38,7 @@
         {
           "assets": [
             {
-              "path": "dry-run/manifests.yaml",
+              "path": "dist/install.yaml",
               "name": "install-${nextRelease.gitTag}.yaml",
               "label": "install-${nextRelease.gitTag}.yaml"
             }
