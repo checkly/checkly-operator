@@ -22,6 +22,7 @@ import (
 	"os"
 	"path/filepath"
 	"testing"
+	//+kubebuilder:scaffold:imports
 
 	"github.com/checkly/checkly-go-sdk"
 	. "github.com/onsi/ginkgo"
@@ -35,7 +36,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 
 	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
-	//+kubebuilder:scaffold:imports
 )
 
 // These tests use Ginkgo (BDD-style Go testing framework). Refer to

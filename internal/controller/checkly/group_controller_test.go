@@ -20,11 +20,12 @@ import (
 	"time"
 
 	"github.com/checkly/checkly-go-sdk"
-	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
 	. "github.com/onsi/ginkgo"
 	. "github.com/onsi/gomega"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+
+	checklyv1alpha1 "github.com/checkly/checkly-operator/api/checkly/v1alpha1"
 )
 
 var _ = Describe("ApiCheck Controller", func() {
@@ -51,6 +52,7 @@ var _ = Describe("ApiCheck Controller", func() {
 		It("Full reconciliation", func() {
 
 			updatedLocations := []string{"eu-west-2", "eu-west-1"}
+			updatedPrivateLocations := []string{"ground-floor"}
 			groupKey := types.NamespacedName{
 				Name: "test-group",
 			}
@@ -64,8 +66,9 @@ var _ = Describe("ApiCheck Controller", func() {
 					Name: groupKey.Name,
 				},
 				Spec: checklyv1alpha1.GroupSpec{
-					Locations:     []string{"eu-west-1"},
-					AlertChannels: []string{alertChannelKey.Name},
+					Locations:        []string{"eu-west-1"},
+					PrivateLocations: []string{},
+					AlertChannels:    []string{alertChannelKey.Name},
 				},
 			}
 
@@ -134,6 +137,20 @@ var _ = Describe("ApiCheck Controller", func() {
 				f := &checklyv1alpha1.Group{}
 				err := k8sClient.Get(context.Background(), groupKey, f)
 				if len(f.Spec.Locations) == 2 && err == nil {
+					return true
+				} else {
+					return false
+				}
+			}, timeout, interval).Should(BeTrue())
+
+			updated.Spec.PrivateLocations = updatedPrivateLocations
+			Expect(k8sClient.Update(context.Background(), updated)).Should(Succeed())
+
+			By("Expecting update")
+			Eventually(func() bool {
+				f := &checklyv1alpha1.Group{}
+				err := k8sClient.Get(context.Background(), groupKey, f)
+				if len(f.Spec.PrivateLocations) == 1 && err == nil {
 					return true
 				} else {
 					return false

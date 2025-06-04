@@ -20,8 +20,9 @@ import "testing"
 
 func TestChecklyGroup(t *testing.T) {
 	data := Group{
-		Name:      "foo",
-		Locations: []string{"basement"},
+		Name:             "foo",
+		Locations:        []string{"basement"},
+		PrivateLocations: []string{"ground-floor"},
 	}
 
 	testData := checklyGroup(data)
