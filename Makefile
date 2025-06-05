@@ -222,12 +222,6 @@ bundle-build: ## Build the bundle image.
 bundle-push: ## Push the bundle image.
 	$(MAKE) docker-push IMG=$(BUNDLE_IMG)
 
-.PHONY: dry-run
-dry-run: manifests kustomize
-	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	mkdir -p ./dry-run
-	$(KUSTOMIZE) build config/default > dry-run/manifests.yaml
-
 .PHONY: opm
 OPM = ./bin/opm
 opm: ## Download opm locally if necessary.
@@ -273,4 +267,4 @@ catalog-push: ## Push a catalog image.
 build-installer: manifests generate kustomize ## Generate a consolidated YAML with CRDs and deployment.
 	mkdir -p dist
 	cd config/manager && $(KUSTOMIZE) edit set image controller=${IMG}
-	$(KUSTOMIZE) build config/default > dist/install.yam
+	$(KUSTOMIZE) build config/default > dist/install.yaml
