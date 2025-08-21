@@ -84,14 +84,24 @@ func (r *AlertChannelReconciler) Reconcile(ctx context.Context, req ctrl.Request
 
 	if ac.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(ac, acFinalizer) {
-			logger.V(1).Info("Finalizer is present, trying to delete Checkly AlertChannel", "ID", ac.Status.ID)
-			err := external.DeleteAlertChannel(ac, r.ApiClient)
-			if err != nil {
-				logger.Error(err, "Failed to delete checkly AlertChannel")
-				return ctrl.Result{}, err
-			}
+			logger.V(1).Info("Finalizer is present, processing deletion", "ID", ac.Status.ID)
 
-			logger.V(1).Info("Successfully deleted checkly AlertChannel", "ID", ac.Status.ID)
+			// Only attempt deletion if the resource was actually created in Checkly
+			if ac.Status.ID != 0 {
+				err := external.DeleteAlertChannel(ac, r.ApiClient)
+				if err != nil {
+					if isNotFoundError(err) {
+						logger.Info("Checkly AlertChannel already deleted or doesn't exist", "ID", ac.Status.ID)
+					} else {
+						logger.Error(err, "Failed to delete checkly AlertChannel")
+						return ctrl.Result{}, err
+					}
+				} else {
+					logger.V(1).Info("Successfully deleted checkly AlertChannel", "ID", ac.Status.ID)
+				}
+			} else {
+				logger.Info("Skipping Checkly deletion - resource was never created", "name", ac.Name)
+			}
 
 			controllerutil.RemoveFinalizer(ac, acFinalizer)
 			err = r.Update(ctx, ac)

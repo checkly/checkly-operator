@@ -78,14 +78,24 @@ func (r *GroupReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl
 	// If DeletionTimestamp is present, the object is marked for deletion, we need to remove the finalizer
 	if group.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(group, groupFinalizer) {
-			logger.V(1).Info("Finalizer is present, trying to delete Checkly group", "checkly group ID", group.Status.ID)
-			err := external.GroupDelete(group.Status.ID, r.ApiClient)
-			if err != nil {
-				logger.Error(err, "Failed to delete checkly group")
-				return ctrl.Result{}, err
-			}
+			logger.V(1).Info("Finalizer is present, processing deletion", "checkly group ID", group.Status.ID)
 
-			logger.Info("Successfully deleted checkly group", "checkly group ID", group.Status.ID)
+			// Only attempt deletion if the resource was actually created in Checkly
+			if group.Status.ID != 0 {
+				err := external.GroupDelete(group.Status.ID, r.ApiClient)
+				if err != nil {
+					if isNotFoundError(err) {
+						logger.Info("Checkly group already deleted or doesn't exist", "checkly group ID", group.Status.ID)
+					} else {
+						logger.Error(err, "Failed to delete checkly group")
+						return ctrl.Result{}, err
+					}
+				} else {
+					logger.Info("Successfully deleted checkly group", "checkly group ID", group.Status.ID)
+				}
+			} else {
+				logger.Info("Skipping Checkly deletion - resource was never created", "name", group.Name)
+			}
 
 			controllerutil.RemoveFinalizer(group, groupFinalizer)
 			err = r.Update(ctx, group)
