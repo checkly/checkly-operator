@@ -287,6 +287,11 @@ func (in *GroupSpec) DeepCopyInto(out *GroupSpec) {
 		*out = make([]string, len(*in))
 		copy(*out, *in)
 	}
+	if in.PrivateLocations != nil {
+		in, out := &in.PrivateLocations, &out.PrivateLocations
+		*out = make([]string, len(*in))
+		copy(*out, *in)
+	}
 	if in.AlertChannels != nil {
 		in, out := &in.AlertChannels, &out.AlertChannels
 		*out = make([]string, len(*in))
