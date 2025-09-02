@@ -73,23 +73,24 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 	logger.Info("Ingress Object found")
 
-	// Gather data for the checkly check
+	// Do we want to do anything with the ingress?
+	if value, exists := ingress.Annotations[annotationEnabled]; !exists || value == "false" {
+		logger.Info("Ingress not enabled for Checkly monitoring, cleaning up any existing resources", "Ingress Name", ingress.Name, "Ingress namespace", ingress.Namespace)
+
+		// Clean up existing ApiChecks without requiring annotations
+		r.cleanupApiChecksForIngress(ctx, &ingress)
+
+		if ingress.GetDeletionTimestamp() == nil {
+			return ctrl.Result{}, nil
+		}
+	}
+
+	// Gather data for the checkly check (only if enabled)
 	logger.Info("Gathering data for the check")
 	apiCheckResources, err := r.gatherApiCheckData(&ingress)
 	if err != nil {
 		logger.Error(err, "unable to gather data for the apiCheck resource", "Ingress Name", ingress.Name, "Ingress namespace", ingress.Namespace)
 		return ctrl.Result{}, err
-	}
-
-	// Do we want to do anything with the ingress?
-	if value, exists := ingress.Annotations[annotationEnabled]; !exists || value == "false" {
-		logger.Info("Checking to see if we need to delete any resources as we're not handling this ingress", "Ingress Name", ingress.Name, "Ingress namespace", ingress.Namespace)
-
-		r.deleteIngressApiChecks(ctx, req, apiCheckResources, ingress)
-
-		if ingress.GetDeletionTimestamp() == nil {
-			return ctrl.Result{}, nil
-		}
 	}
 	// ////////////////////////////////
 	// Delete Logic
@@ -99,7 +100,7 @@ func (r *IngressReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ct
 		if controllerutil.ContainsFinalizer(&ingress, checklyFinalizer) {
 			logger.Info("Finalizer present, need to delete ApiCheck first", "Ingress Name", ingress.Name, "Ingress namespace", ingress.Namespace)
 
-			r.deleteIngressApiChecks(ctx, req, apiCheckResources, ingress)
+			r.cleanupApiChecksForIngress(ctx, &ingress)
 
 			// Delete finalizer logic
 			logger.Info("Deleting finalizer", "Ingress Name", ingress.Name, "Ingress namespace", ingress.Namespace)
@@ -340,6 +341,30 @@ func (r *IngressReconciler) compareApiChecks(
 	}
 
 	return
+}
+
+func (r *IngressReconciler) cleanupApiChecksForIngress(
+	ctx context.Context,
+	ingress *networkingv1.Ingress,
+) {
+	logger := log.FromContext(ctx)
+
+	var existingApiChecks checklyv1alpha1.ApiCheckList
+	err := r.List(ctx, &existingApiChecks, client.InNamespace(ingress.Namespace), client.MatchingLabels{"ingress-controller": ingress.Name})
+	if err != nil {
+		logger.Error(err, "Failed to list existing ApiChecks for cleanup", "Ingress Name", ingress.Name, "Ingress namespace", ingress.Namespace)
+		return
+	}
+
+	for _, apiCheck := range existingApiChecks.Items {
+		logger.Info("Deleting existing ApiCheck", "ApiCheck Name", apiCheck.Name, "Ingress Name", ingress.Name)
+		err = r.Delete(ctx, &apiCheck)
+		if err != nil {
+			logger.Error(err, "Failed to delete ApiCheck during cleanup", "ApiCheck Name", apiCheck.Name, "Namespace", apiCheck.Namespace)
+			continue
+		}
+		logger.Info("Successfully deleted ApiCheck", "ApiCheck Name", apiCheck.Name)
+	}
 }
 
 func (r *IngressReconciler) deleteIngressApiChecks(
