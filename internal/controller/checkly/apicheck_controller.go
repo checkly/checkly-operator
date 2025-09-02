@@ -80,14 +80,24 @@ func (r *ApiCheckReconciler) Reconcile(ctx context.Context, req ctrl.Request) (c
 
 	if apiCheck.GetDeletionTimestamp() != nil {
 		if controllerutil.ContainsFinalizer(apiCheck, apiCheckFinalizer) {
-			logger.V(1).Info("Finalizer is present, trying to delete Checkly check", "checkly ID", apiCheck.Status.ID)
-			err := external.Delete(apiCheck.Status.ID, r.ApiClient)
-			if err != nil {
-				logger.Error(err, "Failed to delete checkly API check")
-				return ctrl.Result{}, err
-			}
+			logger.V(1).Info("Finalizer is present, processing deletion", "checkly ID", apiCheck.Status.ID)
 
-			logger.Info("Successfully deleted checkly API check", "checkly ID", apiCheck.Status.ID)
+			// Only attempt deletion if the resource was actually created in Checkly
+			if apiCheck.Status.ID != "" {
+				err := external.Delete(apiCheck.Status.ID, r.ApiClient)
+				if err != nil {
+					if isNotFoundError(err) {
+						logger.Info("Checkly resource already deleted or doesn't exist", "checkly ID", apiCheck.Status.ID)
+					} else {
+						logger.Error(err, "Failed to delete checkly API check")
+						return ctrl.Result{}, err
+					}
+				} else {
+					logger.Info("Successfully deleted checkly API check", "checkly ID", apiCheck.Status.ID)
+				}
+			} else {
+				logger.Info("Skipping Checkly deletion - resource was never created", "name", apiCheck.Name)
+			}
 
 			controllerutil.RemoveFinalizer(apiCheck, apiCheckFinalizer)
 			err = r.Update(ctx, apiCheck)
